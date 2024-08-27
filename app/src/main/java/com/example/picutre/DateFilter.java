@@ -45,6 +45,7 @@ public class DateFilter extends AppCompatActivity {
     private TextView tv_date;
     Calendar calendar;
     private EditText editTitle;
+
     LinearLayout linearLayout;
     
     // dataString : 하루
@@ -70,6 +71,7 @@ public class DateFilter extends AppCompatActivity {
         periodAndDate = retrofit.create(PeriodAndDate.class);
 
         linearLayout = findViewById(R.id.group_title2);
+
         btn_next = findViewById(R.id.btn_next);
         tv_date = findViewById(R.id.tv_date);
         btn_oneday = findViewById(R.id.btn_oneday);
@@ -128,6 +130,7 @@ public class DateFilter extends AppCompatActivity {
                     }
                 });
                 periodNumber = 1;
+
             }
         });
 
@@ -172,6 +175,7 @@ public class DateFilter extends AppCompatActivity {
 
                                         dateString1 = simpleDateFormat.format(date1);
                                         dateString2 = simpleDateFormat.format(date2);
+                                      
                                         tv_date.setText("시작일 : " + dateString1 + "\n" + "마감일 : " + dateString2);
                                     }
 
@@ -306,5 +310,4 @@ public class DateFilter extends AppCompatActivity {
             }
         });
     }
-
 }

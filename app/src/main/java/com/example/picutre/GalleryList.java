@@ -37,7 +37,6 @@ import java.util.Map;
 
 public class GalleryList extends AppCompatActivity  {
 
-
     private static final int PERMISSION_REQUEST_CODE = 100;
     private RecyclerView recyclerView;
     private FolderAdapter adapter;

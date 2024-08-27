@@ -71,7 +71,7 @@ public class LoadingScreen extends AppCompatActivity {
     SendZip sendZip = retrofit.create(SendZip.class);;
 
     private static final int BUFFER_SIZE = 2048;
-
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

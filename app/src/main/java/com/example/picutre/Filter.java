@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -73,6 +74,7 @@ public class Filter extends AppCompatActivity {
                 2. 얼굴 보이기 & 눈 뜨기 : 2
                 3. 날짜 : 3
                 4. 위치 : 4
+
 
                 사용자가 선택한 분류 방식에 따라 서버에 다른 값을 넘겨주어 분류 파이썬 코드를 돌아가게 한다.
                  */
@@ -212,5 +214,4 @@ public class Filter extends AppCompatActivity {
             }
         });
     }
-
 }

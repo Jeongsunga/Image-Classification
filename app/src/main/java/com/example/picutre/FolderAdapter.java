@@ -17,7 +17,6 @@ import android.content.Intent;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
-
 import java.util.List;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {

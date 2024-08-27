@@ -2,12 +2,15 @@ package com.example.picutre;
 // 앱을 처음 켜면 보이는 1번 화면
 // 사진 분류하기 & DB 내의 분류 결과를 확인하는 버튼 2가지가 있다.
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -17,23 +20,26 @@ import android.Manifest;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final String PREFS_NAME = "prefs";
     private static final String PREF_ALLOWED = "isAllowed";
-
     private Button btn_sort;
     private Button btn_inappGallery;
-
     private long backBtnTime = 0;
-    //final int GET_GALLERY_IMAGE = 200;
-    private int permission = 0;
+    private ApiService apiService;
 
     //뒤로가기 버튼을 두 번 눌러야 어플 종료
     @Override
@@ -55,6 +61,13 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        apiService = retrofit.create(ApiService.class);
+
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isAllowed = preferences.getBoolean(PREF_ALLOWED, false);
 
@@ -63,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (isAllowed) {
             // 권한이 이미 허용된 경우, 메인 콘텐츠를 로드
-            showPermissionDialog();  //실행이 잘 되는지만 확인하기 위해 기입해놓은 코드, 잘 동작됨을 확인한 이후에는 지울 예정
+            //showPermissionDialog();  //실행이 잘 되는지만 확인하기 위해 기입해놓은 코드, 잘 동작됨을 확인한 이후에는 지울 예정
         } else {
             // 권한을 요청합니다.
             //showDialogAutomatically(); // 다이얼로그 자동으로 띄우는 메소드
@@ -73,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         btn_sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendDataToServer(); //앱과 서버가 연결되어 있는지 확인할 수 있는 간단한 코드
                 Intent intent = new Intent(MainActivity.this, Filter.class);
                 startActivity(intent);
             }
@@ -150,4 +164,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void sendDataToServer() {
+        // 요청 데이터 생성
+        DataModel request = new DataModel("John Doe", 25);
+
+        // 서버로 요청 보내기
+        Call<ResponseData> call = apiService.sendData(request);
+        call.enqueue(new Callback<ResponseData>() {
+            @Override
+            public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
+                if (response.isSuccessful()) {
+                    ResponseData myResponse = response.body();
+                    Log.d("MainActivity", "Success123456: " + myResponse.getMessage());
+                } else {
+                    Log.d("MainActivity", "Request failed123456: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData> call, Throwable t) {
+                Log.e("MainActivity", "Error123456: " + t.getMessage());
+            }
+        });
+    }
 }

@@ -2,20 +2,26 @@ package com.example.picutre;
 //스마트폰의 갤러리 폴더들을 보여주는 화면(3번 화면)
 // 이 화면에서 사용자가 분류할 이미지 폴더를 선택한다.
 
-
 import static android.provider.MediaStore.MediaColumns.BUCKET_DISPLAY_NAME;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -31,7 +37,7 @@ import java.util.Map;
 
 public class GalleryList extends AppCompatActivity  {
 
-    private static final int REQUEST_PERMISSION = 100;
+    private static final int PERMISSION_REQUEST_CODE = 100;
     private RecyclerView recyclerView;
     private FolderAdapter adapter;
     private List<FolderItem> folderItems;
@@ -47,7 +53,17 @@ public class GalleryList extends AppCompatActivity  {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         folderItems = new ArrayList<>();
 
-        loadGalleryFolders();
+        //권한 요청 코드
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "권한요청");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        } else {
+            // 권한이 이미 있는 경우
+            // queryImages();
+            loadGalleryFolders();
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -103,13 +119,41 @@ public class GalleryList extends AppCompatActivity  {
                 String firstImagePath = folderMap.get(folderName);
                 folderItems.add(new FolderItem(folderName, firstImagePath, count));
             }
-
             adapter = new FolderAdapter(folderItems);
             recyclerView.setAdapter(adapter);
+        }else {
+            Log.d(TAG, "미디어 파일을 검색할 수 없습니다.");
+        }
+    }
 
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한 승인됨
+                // queryImages();
+                loadGalleryFolders();
+            } else {
+                //Toast.makeText(this, "외부 저장소 읽기 권한이 거부되었습니다", Toast.LENGTH_SHORT).show();
+                //showPermissionDialog();
+                Log.d(TAG, "권한 거부 되었습니다.");
+                requestMediaPermissions(); // 미디어 접근 허용하도록 하기
+                Log.d(TAG, "권한 허용 되었습니다.");
+            }
 
         }
     }
 
+    private void requestMediaPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{
+                    Manifest.permission.READ_MEDIA_IMAGES,
 
+            }, PERMISSION_REQUEST_CODE);
+        } else {
+            requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            }, PERMISSION_REQUEST_CODE);
+        }
+    }
 }

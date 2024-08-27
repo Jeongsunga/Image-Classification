@@ -4,7 +4,7 @@ package com.example.picutre;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -21,6 +21,12 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Response;
+
 public class Filter extends AppCompatActivity {
 
     Button btn_next;
@@ -29,11 +35,10 @@ public class Filter extends AppCompatActivity {
     CheckBox chbox_faceOpen;
     CheckBox chbox_hopeDate;
 
-    //RadioButton radiobtn_all;
+    private FilterNumber filterNumber;
 
     private static final int REQUEST_GALLERY = 1001;
     private static final int REQUEST_CODE = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,13 @@ public class Filter extends AppCompatActivity {
         chbox_eyeclosed = findViewById(R.id.chbox_eyeclosed);
         chbox_faceOpen = findViewById(R.id.chbox_faceOpen);
         chbox_hopeDate = findViewById(R.id.chbox_hopeDate);
-        //radiobtn_all = findViewById(R.id.radiobtn_all);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        filterNumber = retrofit.create(FilterNumber.class);
 
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,10 +70,11 @@ public class Filter extends AppCompatActivity {
                 }
                 /* 
                 선택할 수 있는 필터 
-                1. 얼굴 보이기
-                2. 얼굴 보이기 & 눈 뜨기
-                3. 날짜
-                4. 위치
+                1. 얼굴 보이기 넘기는 값 :1
+                2. 얼굴 보이기 & 눈 뜨기 : 2
+                3. 날짜 : 3
+                4. 위치 : 4
+
 
                 사용자가 선택한 분류 방식에 따라 서버에 다른 값을 넘겨주어 분류 파이썬 코드를 돌아가게 한다.
                  */
@@ -76,17 +88,27 @@ public class Filter extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(), "필터를 한 가지만 선택해 주세요.",Toast.LENGTH_SHORT);
                     toast.show();
                 }
-                //얼굴 보이기 or (얼굴 보이기 & 눈 뜨기) 필터만 선택되었을 때
-                if(chbox_faceOpen.isChecked() == true && chbox_hopeDate.isChecked() == false && chbox_locate.isChecked() == false) {
+
+                //얼굴 보이기 필터만 선택되었을 때
+                if(chbox_faceOpen.isChecked() && !chbox_hopeDate.isChecked() && !chbox_locate.isChecked() && !chbox_eyeclosed.isChecked()) {
                     Intent intent = new Intent(Filter.this, GalleryList.class);
+                    sendDataToServer(1);
                     startActivity(intent);
                 } // 날짜 필터만 선택되었을 때
-                else if(chbox_hopeDate.isChecked() == true && chbox_faceOpen.isChecked() == false && chbox_locate.isChecked() == false) {
+                else if(chbox_hopeDate.isChecked() && !chbox_faceOpen.isChecked() && !chbox_locate.isChecked() && !chbox_eyeclosed.isChecked()) {
                     Intent intent = new Intent(Filter.this, DateFilter.class);
+                    sendDataToServer(3);
                     startActivity(intent);
                 }
                 // 위치 필터만 선택되었을 때
-                else if(chbox_locate.isChecked() == true && chbox_faceOpen.isChecked()==false && chbox_hopeDate.isChecked() == false) {
+                else if(chbox_locate.isChecked() && !chbox_faceOpen.isChecked() && !chbox_hopeDate.isChecked() && !chbox_eyeclosed.isChecked()) {
+                    sendDataToServer(4);
+                    Intent intent = new Intent(Filter.this, GalleryList.class);
+                    startActivity(intent);
+                }
+                // (얼굴 보이기 & 눈 보이기) 필터가 선택되었을 때
+                else if(chbox_eyeclosed.isChecked() && !chbox_hopeDate.isChecked() && !chbox_locate.isChecked()) {
+                    sendDataToServer(2);
                     Intent intent = new Intent(Filter.this, GalleryList.class);
                     startActivity(intent);
                 }
@@ -146,16 +168,9 @@ public class Filter extends AppCompatActivity {
         });
     }
 
-    public void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // 여러 이미지 선택 허용
-        startActivityForResult(intent, REQUEST_GALLERY);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //radiobtn_all.setVisibility(View.VISIBLE);
 
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             ArrayList<Uri> selectedImages = new ArrayList<>();
@@ -176,4 +191,27 @@ public class Filter extends AppCompatActivity {
         }
     }
 
+    private void sendDataToServer(int num) {
+        // 요청 데이터 생성
+        OnlyFilterNumber onlyFilterNumber = new OnlyFilterNumber(num);
+
+        // 서버로 요청 보내기
+        Call<ResponseData> call = filterNumber.sendData(onlyFilterNumber);
+        call.enqueue(new Callback<ResponseData>() {
+            @Override
+            public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
+                if (response.isSuccessful()) {
+                    ResponseData myResponse = response.body();
+                    Log.d("Filter", "Success123456: " + myResponse.getMessage());
+                } else {
+                    Log.d("Filter", "Request failed123456: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseData> call, Throwable t) {
+                Log.e("Filter", "Error123456: " + t.getMessage());
+            }
+        });
+    }
 }

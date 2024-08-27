@@ -70,6 +70,7 @@ public class GalleryAdaptor extends BaseAdapter {
             convertView.setTag(imageView);
         } else imageView = (ImageView) convertView.getTag();
 
+
         imageView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ImageOne.class);
             intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));

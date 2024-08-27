@@ -11,10 +11,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.media.ExifInterface;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.webkit.MimeTypeMap;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -35,24 +37,48 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import android.util.Log;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class LoadingScreen extends AppCompatActivity {
 
-    private Button btn_next, btn_test;
-    private static final int PERMISSION_REQUEST_CODE = 100;
+    /*private static final int PERMISSION_REQUEST_CODE = 100;
     private static final String TAG = "LoadingScreen";
     private String folderPath;
     private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
+    private StorageReference storageReference;*/
+    private TextView tv_classify, tv_upload;
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("http://192.168.7.10:5000")  // Flask 서버의 기본 URL
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
 
+    SendZip sendZip = retrofit.create(SendZip.class);;
+
+    private static final int BUFFER_SIZE = 2048;
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_loading_screen);
 
-        btn_next = findViewById(R.id.btn_next);
-        btn_test = findViewById(R.id.btn_test);
-        firebaseStorage = FirebaseStorage.getInstance();
+        /*firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
         //권한 요청 코드
@@ -65,13 +91,27 @@ public class LoadingScreen extends AppCompatActivity {
 
         folderPath = getIntent().getStringExtra("folderPath");
         if (folderPath != null) {
-            uploadImages(folderPath);
+            //uploadImages(folderPath); 파이어베이스로 직접 업로드하는 코드
             //String dateTime = takeMetadata(folderPath);
             //Log.d(TAG, "dateTime : "+dateTime);
 
-        }
+        }*/
 
-        showDialogAutomatically(); // 다이얼로그 자동으로 띄우는 메소드
+        Intent intent = getIntent();
+        String folderPath = intent.getStringExtra("folderPath");
+
+        // 갤러리 폴더의 경로
+        File galleryFolder = new File(folderPath);
+        String serverUrl = "http://192.168.7.10:5000";
+
+        // 폴더 압축 및 업로드
+        // 폴더 내의 데이터가 크면 처리하는데 시간이 걸림
+        zipAndUpload(galleryFolder, serverUrl);
+
+        tv_classify = findViewById(R.id.tv_classify);
+        tv_upload = findViewById(R.id.tv_upload);
+
+        //showDialogAutomatically(); // 디비에 업로드가 완료되었다고 신호가 오면 띄우기
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -80,7 +120,7 @@ public class LoadingScreen extends AppCompatActivity {
         });
     }
 
-    @Override
+    /*@Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
@@ -100,7 +140,7 @@ public class LoadingScreen extends AppCompatActivity {
             }
 
         }
-    }
+    }*/
 
     private void showDialogAutomatically() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
@@ -126,11 +166,79 @@ public class LoadingScreen extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        AlertDialog dialog = builder.create();
+        //AlertDialog dialog = builder.create();
         builder.show();
     }
 
-    private void requestMediaPermissions() {
+    public void zipAndUpload(File folder, String serverUrl) {
+        try {
+            // 메모리에서 ZIP 파일 생성
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+
+            zipDirectoryToStream(folder, folder.getName(), zipOutputStream);
+            zipOutputStream.close();
+
+            byte[] zipData = byteArrayOutputStream.toByteArray();
+            byteArrayOutputStream.close();
+
+            // 서버로 ZIP 데이터 전송
+            uploadZipData(zipData, folder.getName() + ".zip");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void zipDirectoryToStream(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    zipDirectoryToStream(file, parentFolder + "/" + file.getName(), zos);
+                } else {
+                    FileInputStream fis = new FileInputStream(file);
+                    String zipEntryName = parentFolder + "/" + file.getName();
+                    zos.putNextEntry(new ZipEntry(zipEntryName));
+
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int length;
+                    while ((length = fis.read(buffer)) > 0) {
+                        zos.write(buffer, 0, length);
+                    }
+                    zos.closeEntry();
+                    fis.close();
+                }
+            }
+        }
+    }
+
+    private void uploadZipData(byte[] zipData, String fileName) {
+        // Retrofit을 통해 ZIP 파일 업로드
+        RequestBody requestFile = RequestBody.create(MediaType.parse("application/zip"), zipData);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", fileName, requestFile);
+        Log.d(TAG, "fileName : " + fileName);
+
+        Call<ResponseBody> call = sendZip.uploadZipFile(body);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    // 여기서 사진 분류 완료됨을 알림
+                    Log.d("ZipUpload", "File uploaded successfully123123 : " + response.message());
+                    tv_classify.setVisibility(View.VISIBLE);
+                } else {
+                    Log.d("ZipUpload", "File upload failed123123: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("ZipUpload", "Error123123: " + t.getMessage());
+            }
+        });
+    }
+    /*private void requestMediaPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissions(new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
@@ -145,7 +253,6 @@ public class LoadingScreen extends AppCompatActivity {
 
     private void uploadImages(String folderPath) {
         File folder = new File(folderPath);
-
 
         // 디렉터리 존재 여부 확인
         if (!folder.exists() || !folder.isDirectory()) {
@@ -255,6 +362,5 @@ public class LoadingScreen extends AppCompatActivity {
         } else {
             return String.format("%d bytes", bytes);
         }
-    }
+    }*/
 }
-

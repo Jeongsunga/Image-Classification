@@ -12,35 +12,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="사진 분류 중입니다."
+        android:text="처리 중입니다."
         android:textColor="#000000"
         android:textSize="30sp"
-        android:layout_marginTop="250dp"/>
+        android:textStyle="bold"
+        android:layout_marginTop="150dp"/>
 
-    <ImageView
-        android:layout_width="130dp"
-        android:layout_height="130dp"
-        android:src="@drawable/loading"
-        android:layout_gravity="center"
-        android:layout_marginTop="40dp"
-        android:visibility="gone"/>
-
-
-    <Button
-        android:id="@+id/btn_next"
-        android:layout_width="wrap_content"
+    <ProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:text="완료"
-        android:layout_gravity="center"
-        android:layout_marginTop = "100dp"/>
-    <Button
-        android:id="@+id/btn_test"
-        android:layout_width="wrap_content"
+        android:layout_marginTop="70dp"/>
+
+    <TextView
+        android:id="@+id/tv_classify"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="사진 분류가 완료되었습니다."
+        android:gravity="center"
+        android:layout_marginTop="70dp"
         android:visibility="invisible"
-        android:text="check"
-        android:layout_gravity="center"
-        android:layout_marginTop = "20dp"/>
+        android:textSize="15dp"/>
+
+    <TextView
+        android:id="@+id/tv_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DB 업로드 완료되었습니다."
+        android:visibility="invisible"
+        android:gravity="center"
+        android:layout_marginTop="30dp"
+        android:textSize="15dp"/>
 
 </LinearLayout>

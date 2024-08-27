@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "248746309248",
+    "firebase_url": "https://picture-bb835-default-rtdb.firebaseio.com",
+    "project_id": "picture-bb835",
+    "storage_bucket": "picture-bb835.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:248746309248:android:c59c728eeb3a42b9b25865",
+        "android_client_info": {
+          "package_name": "com.example.picture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFT0-L0YEFUi67c_7YaKG1WZ-2Q0OcWIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:248746309248:android:b7168bf84fa4be9fb25865",
+        "android_client_info": {
+          "package_name": "com.example.picutre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFT0-L0YEFUi67c_7YaKG1WZ-2Q0OcWIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

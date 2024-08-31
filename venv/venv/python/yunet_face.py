@@ -5,16 +5,16 @@ from datetime import datetime
 #  얼굴
 
 def detect_face(extractFolder):
-    detector = cv2.FaceDetectorYN.create("././././auth/face_detection_yunet_2023mar.onnx", "", (0, 0))
+    detector = cv2.FaceDetectorYN.create("./Resource/face_detection_yunet_2023mar.onnx", "", (0, 0))
 
     cnt = 0
-    img_list_np = []
-    base_dir = './faces'
-    file_name = "Face_Detection"
-    file_name2 = "No_Face_Detection"
-    detect_dir = os.path.join(base_dir, file_name)
-    detect_dir2 = os.path.join(base_dir, file_name2)
-
+    base_dir = '../' + extractFolder + '/' + extractFolder
+    file_name = "Face_Detection_" + extractFolder # Face_Detection_detectFace
+    file_name2 = "No_Face_Detection_" + extractFolder
+    resultFolderPath = '../ClassifyResult/'
+    detect_dir = resultFolderPath + file_name #../ClassifyResult/Face_Detection
+    #os.path.join(resultFolderPath, file_name)
+    detect_dir2 = os.path.join(resultFolderPath, file_name2)
 
     if not os.path.exists(detect_dir):
         os.mkdir(detect_dir)
@@ -75,3 +75,5 @@ def detect_face(extractFolder):
 
     now = datetime.now()
     print(now)
+
+#detect_face('detectFace')

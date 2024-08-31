@@ -28,6 +28,7 @@ def run_subprocess_sync(command):
     asyncio.set_event_loop(loop)
     loop.run_until_complete(run_subprocess(command))
 
+
 # POST 요청을 받을 수 있는 간단한 API 엔드포인트
 @app.route('/api/data', methods=['POST'])
 def receive_data():
@@ -39,26 +40,30 @@ def receive_data():
     return jsonify({"status": "success", "message": "Data received successfully"})
 
 
-filterNumber = 1 # 필터 4가지 중에서 전역변수로 사용하기 위한 초기 선언
-periodNumber = 1 # 하루, 기간 중에서 전역변수로 사용하기 위한 초기 선언
-folderName = ""  # 폴더 이름, 전역변수 초기 선언
+global filterNumber
+global periodNumber
+global folderName
 
 # 사용자가 앱에서 선택한 분류 방식 값을 받는 라우터
 @app.route('/filterNumber', methods=['POST'])
 def receiveFilterNumber():
-    data = request.json # {"filterNumber":1}
+    global filterNumber, periodNumber, folderName
+    data = request.json
     filterNumber = data['filterNumber']
-    print("Receive filter number : ", filterNumber)
+    if filterNumber != 3: # 얼굴, 눈, 위치이면 
+        periodNumber = 0  # 하루/기간 = 0, 생성할 폴더 이름 = 빈 값으로 넘기기
+        folderName = ""
+    print("filterNumber : ", filterNumber)
     return jsonify({"status": "success", "message": "Data received successfully"})
 
 
 # 사용자가 앱에서 선택한 날짜를 받는 라우터
 @app.route('/filterNumber/date', methods=['POST'])
 def receiveFilterNumberDate():
+    global periodNumber, folderName
     data = (request.json)
     periodNumber = data['periodNumber']
     folderName = data['folderName']
-
     print(periodNumber, folderName)
     return jsonify({"status": "success", "message": "Data received successfully"})
 
@@ -69,6 +74,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/get/folderZip', methods=['POST'])
 def upload_file():
+    global filterNumber, periodNumber, folderName
     # 'uploaded_file' 은 앱에서 업로드한 폴더 이름을 찾기 쉽게 키로 설정한 값
     if 'uploaded_file' not in request.files:
         print("No file part")
@@ -96,9 +102,8 @@ def upload_file():
         # 앱에서 입력받은 filterNumber에 따라 다른 분류 코드 실행, 비동기처리 필수!
         command = ['python3', './python/main.py', str(filterNumber), str(periodNumber), folderName, extract_to_folder]
         executor.submit(run_subprocess_sync, command)
-        #subprocess.run(command, capture_output=True, text=True)
-    
-        return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+        
+        return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 400
     
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ public class Filter extends AppCompatActivity {
         chbox_hopeDate = findViewById(R.id.chbox_hopeDate);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+                .baseUrl("http://172.21.195.40:5000/")  // 로컬 호스트 주소
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

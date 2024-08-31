@@ -2,53 +2,36 @@ package com.example.picutre;
 // 사용자가 선택한 폴더의 이미지를 파이어베이스 스토리지에 올리는 클래스(4번 화면)
 // 파이어베이스 스토리지에 이미지 업로드가 완료됐을 경우 사용자에게 다이얼로그로 완료됨을 알림
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.media.ExifInterface;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.webkit.MimeTypeMap;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.content.ContextCompat;
-
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import android.util.Log;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -62,9 +45,10 @@ public class LoadingScreen extends AppCompatActivity {
     private String folderPath;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;*/
-    private TextView tv_classify, tv_upload;
+    private TextView tv_classify;
+    private ProgressBar progressBar;
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://192.168.7.10:5000")  // Flask 서버의 기본 URL
+            .baseUrl("http://172.21.195.40:5000")  // Flask 서버의 기본 URL
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
@@ -102,16 +86,13 @@ public class LoadingScreen extends AppCompatActivity {
 
         // 갤러리 폴더의 경로
         File galleryFolder = new File(folderPath);
-        String serverUrl = "http://192.168.7.10:5000";
+        String serverUrl = "http://172.21.195.40:5000";
 
         // 폴더 압축 및 업로드
         // 폴더 내의 데이터가 크면 처리하는데 시간이 걸림
         zipAndUpload(galleryFolder, serverUrl);
 
         tv_classify = findViewById(R.id.tv_classify);
-        tv_upload = findViewById(R.id.tv_upload);
-
-        //showDialogAutomatically(); // 디비에 업로드가 완료되었다고 신호가 오면 띄우기
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -154,8 +135,7 @@ public class LoadingScreen extends AppCompatActivity {
                 dialog.dismiss();
                 Intent intent = new Intent(LoadingScreen.this, inAppGallery.class);
                 startActivity(intent);
-                // 실제 파이어베이스 스토리지에서 결과를 반영하고 휴대폰으로 결과를 확인하는데 시간이 걸리므로
-                // 바로 들어가면 확인할 수 없음
+                // 실제 서버에서 분류하는데 시간이 걸리므로 바로 들어가면 확인 불가
             }
         });
         builder.setNegativeButton("아니요", new DialogInterface.OnClickListener() {
@@ -224,9 +204,20 @@ public class LoadingScreen extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    // 여기서 사진 분류 완료됨을 알림
+                    // 여기서 사진 분류 완료 및 저장을 알림
+                    // DB 저장 대신 서버 저장으로 바꿈!
                     Log.d("ZipUpload", "File uploaded successfully123123 : " + response.message());
                     tv_classify.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    // Handler를 생성하고 2초(2000ms) 후에 동작을 수행하도록 설정합니다.
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showDialogAutomatically(); // 완료 되었다고 결과를 확인하겠냐고 묻는 다이얼로그
+                        }
+                    }, 2000);
+
                 } else {
                     Log.d("ZipUpload", "File upload failed123123: " + response.message());
                 }

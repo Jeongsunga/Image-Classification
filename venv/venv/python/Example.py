@@ -3,14 +3,14 @@ import os, glob
 # 눈
 
 def detect_eyes(extractFolder):
-    eye_cascPath = "../python/Resource/haarcascade_eye_tree_eyeglasses.xml"  #eye detect model
-    face_cascPath = "../python/Resource/haarcascade_frontalface_default.xml"  #front_face detect model
+    eye_cascPath = "./Resource/haarcascade_eye_tree_eyeglasses.xml"  #eye detect model
+    face_cascPath = "./Resource/haarcascade_frontalface_default.xml"  #front_face detect model
     faceCascade = cv2.CascadeClassifier(face_cascPath)
     eyeCascade = cv2.CascadeClassifier(eye_cascPath)
 
     cnt = 10000
-    base_dir = './faces/No_Face_Detection'
-    base_dir2 = './faces/Face_Detection'
+    base_dir = '../ClassifyResult/Face_Detection_' + extractFolder
+    base_dir2 = '../ClassifyResult/No_Face_Detection_' + extractFolder
 
     if not os.path.exists(base_dir2):
         os.mkdir(base_dir2)
@@ -56,3 +56,5 @@ def detect_eyes(extractFolder):
                 # cv2.imshow('img', img)
                 # if cv2.waitKey(0) == ord('q') or cv2.waitKey(0) == ord('Q'):
                 #     cv2.destroyAllWindows()
+
+#detect_eyes('detectFace')

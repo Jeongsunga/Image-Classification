@@ -5,27 +5,28 @@ import numpy as np
 import shutil
 import re
 
-def pic_period(folderName, extractFolder):
+def pic_period(innoDate, folderName, extractFolder):
         
+    # 날짜 추출
+    start_year = innoDate[0:4]
+    start_month = innoDate[6:8]
+    start_day = innoDate[10:12]
+        
+    end_year = innoDate[14:18]
+    end_month = innoDate[20:22]
+    end_day = innoDate[24:26]
+
     # 정규 표현식 패턴 정의
     pattern = r'^\d{4}년 \d{2}월 \d{2}일-\d{4}년 \d{2}월 \d{2}일$'
     
-    # 문자열이 패턴과 일치하는지 검사
+    # # 문자열이 패턴과 일치하는지 검사
     match = re.match(pattern, folderName)
-    if match:
-        start_year = folderName[0:4]
-        start_month = folderName[6:8]
-        start_day = folderName[10:12]
-        
-        end_year = folderName[14:18]
-        end_month = folderName[20:22]
-        end_day = folderName[24:26]
-
+    if match: # 사용자 지정 폴더 이름 없음
         title = start_year + start_month + start_day + ' - ' + end_year + end_month + end_day
-    else:
+    else: # 사용자 지정 폴더 이름 있음
         title = folderName
 
-    image_path = '../' + extractFolder + '/' + extractFolder + '/'
+    image_path = './' + extractFolder + '/' + extractFolder + '/'
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png")]
     img_list_np = []
@@ -98,7 +99,9 @@ def pic_period(folderName, extractFolder):
                                                 '''
                     moderate = True
                     # 시작/마감 년/월이 같고 날만 다를 때
-                    if(pic_date_year == start_year == end_year and pic_date_month == start_month == end_month and start_day <= pic_date_day <= end_day): moderate = True
+                    if(pic_date_year == start_year == end_year and 
+                       pic_date_month == start_month == end_month and 
+                       start_day <= pic_date_day <= end_day): moderate = True
                     else: moderate = False
 
                     # 시작/마감 년은 같은데 달이 다를 때, 시작 월인데 날이 시작 날보다 이르거나, 마감 월인데 마감 일보다 늦거나
@@ -123,8 +126,8 @@ def pic_period(folderName, extractFolder):
                         moderate == False
 
                     if moderate == True:
-                        dst = '../ClassifyResult/'
-                        final_dst = dst + title #'../ClassifyResult/20240412-20240413'
+                        dst = './ClassifyResult/'
+                        final_dst = dst + title 
                             
 
                         if os.path.exists(final_dst):

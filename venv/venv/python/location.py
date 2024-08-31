@@ -9,7 +9,7 @@ def floatmul(a):
 
 def sortLocation(extractFolder):
     
-    image_path = "../" + extractFolder + "/" + extractFolder + "/"
+    image_path = "./" + extractFolder + "/" + extractFolder + "/"
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
     img_list_np = []
@@ -85,7 +85,7 @@ def sortLocation(extractFolder):
                 continue
 
                     
-            dst = "../ClassifyResult/"
+            dst = "./ClassifyResult/"
             final_dst = dst + dir_name
 
             # 분류 완료된 결과를 DB에 저장해야 함

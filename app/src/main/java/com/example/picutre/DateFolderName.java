@@ -3,10 +3,12 @@ package com.example.picutre;
 public class DateFolderName {
     int periodNumber;
     String folderName;
+    String innoDate;
 
-    public DateFolderName(int periodNumber, String folderName) {
+    public DateFolderName(int periodNumber, String folderName, String innoDate) {
         this.periodNumber = periodNumber;
         this.folderName = folderName;
+        this.innoDate = innoDate;
     }
 
     public int getPeriodNumber() {
@@ -23,5 +25,13 @@ public class DateFolderName {
 
     public void setFolderName(String folderName) {
         this.folderName = folderName;
+    }
+
+    public String getInnoDate() {
+        return innoDate;
+    }
+
+    public void setInnoDate(String innoDate) {
+        this.innoDate = innoDate;
     }
 }

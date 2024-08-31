@@ -6,23 +6,22 @@ import shutil
 import re
 
 
-def sortDate(fileName, extractFolder):
-  
+def sortDate(innoDate, fileName, extractFolder):
+
+    # 비교 날짜 추출
+    user_year = innoDate[0:4]
+    user_month = innoDate[6:8]
+    user_day = innoDate[10:12]
+
     # 정규 표현식 패턴 정의
     pattern = r'^\d{4}년 \d{2}월 \d{2}일$'
-    
-    # 문자열이 패턴과 일치하는지 검사
     match = re.match(pattern, fileName)
-    if match:
-        user = fileName # 2024년 08월 01일 
-        user_year = user[0:4]
-        user_month = user[6:8]
-        user_day = user[10:12]
-        title = user_year + user_month + user_day  
-    else:
-        title = fileName 
-
-    image_path = '../' + extractFolder + '/' + extractFolder + "/"
+    if match: # 사용자 지정 폴더 이름이 없는 경우
+        title = user_year + user_month + user_day 
+    else: # 사용자 지정 폴더 이름이 있는 경우
+        title = fileName
+     
+    image_path = './' + extractFolder + '/' + extractFolder + "/"
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
     print(img_list_jpg)
@@ -85,7 +84,7 @@ def sortDate(fileName, extractFolder):
 
                     
                     if user_year == pic_date_year and user_month == pic_date_month and user_day == pic_date_day:
-                        dst = '../ClassifyResult/'
+                        dst = './ClassifyResult/'
                         final_dst = dst + title
 
                         if os.path.exists(final_dst):

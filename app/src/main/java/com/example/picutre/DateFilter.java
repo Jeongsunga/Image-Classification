@@ -51,7 +51,7 @@ public class DateFilter extends AppCompatActivity {
     // dataString : 하루
     // dataString1 : 기간 시작일
     // dataString2 : 기간 마감일
-    String dateString1, dateString2, dateString;
+    String dateString1, dateString2, dateString, innoDate;
 
     PeriodAndDate periodAndDate;
     int periodNumber;
@@ -248,29 +248,46 @@ public class DateFilter extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(), "날짜를 선택해주세요.",Toast.LENGTH_SHORT);
                     toast.show();
                 }else {
-                    Log.d(TAG, "title length : " + editTitle.getText().length());
-                    if(editTitle.getText().length() == 0) {
-                        // 사용자가 분류 결과 생성될 폴더의 이름을 작성하지 않았다면
-                        // 사용자가 선택한 날짜로 폴더 이름을 생성하게 된다.
-                        // 서버로 사용자가 선택한 날짜값을 전송
-                        // 하루일 경우 -> dateString
-                        // 기간일 경우 -> dateString1 + ' - ' + dateString2
-                        if(periodNumber == 1) {
-                            // 하루
+//                    Log.d(TAG, "title length : " + editTitle.getText().length());
+//                    if(editTitle.getText().length() == 0) { // 사용자가 분류 결과 생성될 폴더의 이름을 작성하지 않았다면
+//
+//                        // 사용자가 선택한 날짜로 폴더 이름을 생성하게 된다.
+//                        // 서버로 사용자가 선택한 날짜값을 전송
+//                        // 하루일 경우 -> dateString
+//                        // 기간일 경우 -> dateString1 + ' - ' + dateString2
+//                        if(periodNumber == 1) {
+//                            // 하루
+//                            innoDate = dateString; //sendDate : 순수 날짜
+//                            foldername = dateString; //
+//
+//                        }else { // 기간
+//                            foldername = dateString1 + '-' + dateString2;
+//                            innoDate = foldername;
+//                        }
+//
+//                    }else { // 사용자가 분류 결과 생성될 폴더의 이름을 작성했을 경우
+//                        // 사용자가 작성한 문자열로 폴더를 생성하도록 값을 넘긴다.
+//                        // 파라미터 -> editTitle.getText(), 새로운 변수에 값을 담아서 보내도 됨(자료형 String)
+//                        foldername = (editTitle.getText().toString());
+//                    }
+                    if(periodNumber == 1) { // 하루일 때
+                        innoDate = dateString;
+                        if(editTitle.getText().length() == 0) { // 사용자 지정 폴더 이름 없음
                             foldername = dateString;
-                        }else {
-                            foldername = dateString1 + '-' + dateString2;
+                        }else { // 사용자 지정 폴더 이름 있음
+                            foldername = editTitle.getText().toString();
                         }
-
-                    }else {
-                        // 사용자가 분류 결과 생성될 폴더의 이름을 작성했을 경우
-                        // 사용자가 작성한 문자열로 폴더를 생성하도록 값을 넘긴다.
-                        // 파라미터 -> editTitle.getText(), 새로운 변수에 값을 담아서 보내도 됨(자료형 String)
-                        foldername = (editTitle.getText().toString());
+                    }else { //  기간일 때
+                        innoDate = dateString1 + '-' + dateString2;
+                        if(editTitle.getText().length() == 0) { // 사용자 지정 폴더 이름 없음
+                            foldername = innoDate;
+                        }else { // 사용자 지정 폴더 이름 있음
+                            foldername = editTitle.getText().toString();
+                        }
                     }
 
-                    Log.d(TAG, "folderName : " + foldername + " periodNumber : " + periodNumber);
-                    sendDataToServer(periodNumber, foldername);
+                    //Log.d(TAG, "folderName : " + foldername + " periodNumber : " + periodNumber);
+                    sendDataToServer(periodNumber, foldername, innoDate);
                     Intent intent = new Intent(DateFilter.this, GalleryList.class);
                     startActivity(intent);
                 }
@@ -284,10 +301,10 @@ public class DateFilter extends AppCompatActivity {
         });
     }
 
-    private void sendDataToServer(int periodNumber, String folderName) {
+    private void sendDataToServer(int periodNumber, String folderName, String innoDate) {
         // 요청 데이터 생성
-
-        DateFolderName dataFolderName = new DateFolderName(periodNumber, folderName);
+        Log.d(TAG, "check the send data : " + periodNumber +  foldername +  innoDate);
+        DateFolderName dataFolderName = new DateFolderName(periodNumber, folderName, innoDate);
 
         // 서버로 요청 보내기
 

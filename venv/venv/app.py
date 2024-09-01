@@ -104,6 +104,45 @@ def upload_file():
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
 
+# 사진의 위치 정보만 모아놓은 Json 파일을 받는 라우터
+# @app.route('/post/gpsJson', methods=['POST'])
+# def getGpsJson():
+#     # 'file'이라는 키로 파일을 가져옴
+#     if 'file' not in request.files:
+#         return jsonify({"status": "failure", "message": "No file part in the request"})
+    
+#     file = request.files['file']
+
+#     # 파일이 없거나 파일명이 없는 경우 처리
+#     if file.filename == '':
+#         return jsonify({"status": "failure", "message": "No selected file"})
+    
+#     # 파일이 JSON 파일인지 확인
+#     if file and file.filename.endswith('.json'):
+#         try:
+#             # 파일을 읽어 JSON으로 변환
+#             json_data = json.load(file)
+#             print(json_data)
+
+#             # 경로 지정 및 폴더 생성
+#             upload_folder = './uploads'
+#             file_path = os.path.join(upload_folder, file.filename)
+
+#             # JSON 데이터를 파일에 저장
+#             with open(file_path, 'w') as output_file:
+#                 json.dump(json_data, output_file, indent=4)
+
+#             # 저장된 파일 확인 로그
+#             print(f"File saved to {file_path}")
+            
+#             return jsonify({"status": "success", "message": "Data received and saved successfully"})
+#         except json.JSONDecodeError:
+#             return jsonify({"status": "failure", "message": "Invalid JSON format"})
+#         except Exception as e:
+#             return jsonify({"status": "failure", "message": str(e)})
+#     else:
+#         return jsonify({"status": "failure", "message": "Invalid file format"})
+
 # 분류 완료된 결과를 사용자 앱으로 JSON 형태로 보내는 라우터
 @app.route('/get/folderList', methods=['GET'])
 def send_result():

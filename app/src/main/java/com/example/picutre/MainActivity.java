@@ -2,13 +2,9 @@ package com.example.picutre;
 // 앱을 처음 켜면 보이는 1번 화면
 // 사진 분류하기 & DB 내의 분류 결과를 확인하는 버튼 2가지가 있다.
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +14,9 @@ import androidx.annotation.NonNull;
 import android.Manifest;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,9 +29,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_CODE = 100;
-    private static final String PREFS_NAME = "prefs";
-    private static final String PREF_ALLOWED = "isAllowed";
+    private static final int PERMISSION_REQUEST_CODE = 1;
     private Button btn_sort;
     private Button btn_inappGallery;
     private long backBtnTime = 0;
@@ -68,20 +62,17 @@ public class MainActivity extends AppCompatActivity {
 
         apiService = retrofit.create(ApiService.class);
 
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean isAllowed = preferences.getBoolean(PREF_ALLOWED, false);
+        // Check if the permissions are granted
+        if (!checkPermissions()) {
+            // Request permissions
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.ACCESS_MEDIA_LOCATION},
+                    PERMISSION_REQUEST_CODE);
+        }
 
         btn_sort = findViewById(R.id.btn_sort);
         btn_inappGallery = findViewById(R.id.btn_inappGallery);
-
-        if (isAllowed) {
-            // 권한이 이미 허용된 경우, 메인 콘텐츠를 로드
-            //showPermissionDialog();  //실행이 잘 되는지만 확인하기 위해 기입해놓은 코드, 잘 동작됨을 확인한 이후에는 지울 예정
-        } else {
-            // 권한을 요청합니다.
-            //showDialogAutomatically(); // 다이얼로그 자동으로 띄우는 메소드
-            showPermissionDialog();
-        }
 
         btn_sort.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,58 +100,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showPermissionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("미디어 접근 권한 요청")
-                .setMessage("앱에서 미디어에 접근하려면 권한이 필요합니다. 권한을 허용하시겠습니까?")
-                .setPositiveButton("허용", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        requestMediaPermissions(); // 미디어 접근 허용하도록 하기
-                    }
-                })
-                .setNegativeButton("거절", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MainActivity.this, "권한이 거절되었습니다. 앱을 종료합니다.", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                })
-                .setCancelable(false)
-                .show();
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestMediaPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestPermissions(new String[]{
-                    Manifest.permission.READ_MEDIA_IMAGES,
-
-            }, PERMISSION_REQUEST_CODE);
-        } else {
-            requestPermissions(new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            }, PERMISSION_REQUEST_CODE);
-        }
-    }
-
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean permissionGranted = true;
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    permissionGranted = false;
-                    break;
-                }
-            }
-            if (permissionGranted) {
-                SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(PREF_ALLOWED, true);
-                editor.apply();
-            }else {
-                Toast.makeText(this, "권한이 거절되었습니다. 앱을 종료합니다.", Toast.LENGTH_SHORT).show();
-                finish();
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                // Permissions granted
+                //Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permissions denied
+                //Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -188,4 +144,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }

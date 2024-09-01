@@ -59,11 +59,7 @@ public class GalleryList extends AppCompatActivity  {
             Log.d(TAG, "권한요청");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-        } else {
-            // 권한이 이미 있는 경우
-            // queryImages();
-            loadGalleryFolders();
-        }
+        } else loadGalleryFolders();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

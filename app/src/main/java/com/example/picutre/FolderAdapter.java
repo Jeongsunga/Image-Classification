@@ -49,6 +49,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
             Intent intent = new Intent(context, LoadingScreen.class); //로딩 스크린으로 화면 이동
             String folderPath = new File(folderItem.getFirstImagePath()).getParent(); // 이미지 경로에서 폴더 경로 추출
             intent.putExtra("folderPath", folderPath);
+
             context.startActivity(intent);
             //Log.d(TAG, "folderPath : " +  folderPath);
         });

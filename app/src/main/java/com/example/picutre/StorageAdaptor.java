@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -49,9 +50,9 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
         StorageItem storageItem = storageItemList.get(position);
         holder.folderNameTextView.setText(storageItem.getFolderName2());
         holder.countTextView.setText(String.valueOf(storageItem.getCount2()));
+        Picasso.get().load(storageItem.getFirstImagePath2()).into(holder.firstImageView);
+                /*if (storageItem.getFirstImagePath2() != null) {
 
-                if (storageItem.getFirstImagePath2() != null) {
-                    
                     Glide.with(holder.itemView.getContext())
                             .load(storageItem.getFirstImagePath2())
                             .into(holder.firstImageView);
@@ -59,9 +60,9 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
                 }else {
                     holder.firstImageView.setImageResource(R.drawable.clover); // placeholder 이미지 설정
                     //holder.folderNameTextVciew.setText("파이어베이스 스토리지에 저장된 데이터가 없습니다.");
-                }
+                }*/
 
-        // 사용자가 폴더를 선택했을 때, 폴더의 이름을 FirebaseStorage_images로 값을 전달
+        // 사용자가 폴더를 선택했을 때, 폴더의 이름과 사진 장수를 FirebaseStorage_images로 값을 전달
         holder.itemView.setOnClickListener(v -> {
 
             Context context = holder.itemView.getContext(); // Context 얻기
@@ -76,7 +77,6 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
 
             context.startActivity(intent);
         });
-
     }
 
     @Override

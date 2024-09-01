@@ -1,23 +1,16 @@
 package com.example.picutre;
 // 파이어베이스 스토리지에 있는 폴더들을 보여주는 클래스(2번 화면)
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,25 +18,28 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageReference;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
-import java.util.Random;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.IOException;
 
 public class inAppGallery extends AppCompatActivity {
 
     private ImageButton imageButton;
-    //private TextView nodatatextView;
     private RecyclerView recyclerView;
     private StorageAdaptor storageAdaptor;
     private List<StorageItem> storageItemList;
+    private static final String TAG = "inAppGallery";
+    private OkHttpClient client = new OkHttpClient();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +50,14 @@ public class inAppGallery extends AppCompatActivity {
         recyclerView = findViewById(R.id.recylcerview);
         imageButton = findViewById(R.id.btn_menu);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //nodatatextView = findViewById(R.id.noData);
 
         storageItemList = new ArrayList<>();
         storageAdaptor = new StorageAdaptor(storageItemList);
         recyclerView.setAdapter(storageAdaptor);
 
-        fetchStorageItems();
+        fetchDataFromServer();
+
+        //fetchStorageItems();
 
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +73,6 @@ public class inAppGallery extends AppCompatActivity {
                         return true;
                     }
                 });
-
                 popupMenu.show();
             }
         });
@@ -87,7 +83,53 @@ public class inAppGallery extends AppCompatActivity {
             return insets;
         });
     }
-    private void fetchStorageItems() {
+
+    private void fetchDataFromServer() {
+        Request request = new Request.Builder()
+                .url("http://172.21.195.40:5000/get/folderList") // Flask 서버의 URL
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Failed to fetch data", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String responseData = response.body().string();
+                    runOnUiThread(() -> {
+                        try {
+                            parseJsonData(responseData);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to parse JSON", e);
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "Server response error: " + response.code());
+                }
+            }
+        });
+    }
+
+    private void parseJsonData(String jsonData) throws Exception {
+        JSONArray jsonArray = new JSONArray(jsonData);
+        storageItemList.clear();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String folderName = jsonObject.getString("folder_name");
+            int photoCount = jsonObject.getInt("photo_count");
+            String firstPhotoPath = jsonObject.optString("first_photo", "default.jpg");
+            String firstPhotoUrl = "http://172.21.195.40:5000/get/folderList/" + firstPhotoPath;
+            storageItemList.add(new StorageItem(folderName, firstPhotoUrl, photoCount));
+        }
+
+        storageAdaptor.notifyDataSetChanged();
+    }
+
+    /*private void fetchStorageItems() {
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
@@ -143,8 +185,6 @@ public class inAppGallery extends AppCompatActivity {
                     storageAdaptor.notifyDataSetChanged();
 
                 }
-
-
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -153,7 +193,5 @@ public class inAppGallery extends AppCompatActivity {
 
             }
         });
-    }
-
-
+    }*/
 }

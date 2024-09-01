@@ -9,6 +9,6 @@ import retrofit2.http.Part;
 
 public interface SendZip {
     @Multipart
-    @POST("/get/folderZip")
+    @POST("/post/folderZip")
     Call<ResponseBody> uploadZipFile(@Part MultipartBody.Part file);
 }

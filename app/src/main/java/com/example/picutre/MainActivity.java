@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         btn_inappGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendDataToServer(); //앱과 서버가 연결되어 있는지 확인할 수 있는 간단한 코드
                 Intent intent = new Intent(MainActivity.this, inAppGallery.class);
                 startActivity(intent);
             }
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendDataToServer() {
         // 요청 데이터 생성
-        DataModel request = new DataModel("John Doe", 25);
+        DataModel request = new DataModel("HoJeong & SeungA", 24);
 
         // 서버로 요청 보내기
         Call<ResponseData> call = apiService.sendData(request);

@@ -28,16 +28,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class FirebaseStorage_images extends AppCompatActivity {
     private GridView gridView;
-    private FirebaseImageLoader firebaseImageLoader;
-    private GalleryAdaptor galleryAdaptor;
+    private ImageAdapter imageAdapter;
     private RequestManager glideRequestManager;
     private TextView imagecount, foldername;
-
+    private ArrayList<String> imagePaths;
     private ImageButton imageButton;
+    private static final String BASE_URL = "http://172.21.195.40:5000/";
+    private static Retrofit retrofit;
+    private OkHttpClient client = new OkHttpClient();
+    private static final String TAG = "FetchData";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,37 +75,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
 
         foldername.setText(folderName);
         imagecount.setText(String.valueOf(imageCount));
-
-        Log.d(TAG, "폴더 이름 : " + folderName + ", 사진 장 수 : " + imageCount);
-
-
-        // FirebaseImageLoader 인스턴스를 생성하면서 폴더 이름을 전달합니다.
-        firebaseImageLoader = new FirebaseImageLoader(folderName);
-
-
-        firebaseImageLoader.fetchImageUrls(new FirebaseImageLoader.ImageUrlCallback() {
-            //private Context context;
-
-            @Override
-            public void onSuccess(List<String> urls) {
-                if(urls.isEmpty()) {
-                    Log.d(TAG, "url이 null값 입니다.");
-                }
-                else {
-                    Log.d(TAG, "the problem of the adaptor");
-                    galleryAdaptor = new GalleryAdaptor(FirebaseStorage_images.this, urls, glideRequestManager);
-                    gridView.setAdapter(galleryAdaptor);
-                    Log.d(TAG, "ok!");
-                }
-
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(FirebaseStorage_images.this, "Failed to load images", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,4 +100,8 @@ public class FirebaseStorage_images extends AppCompatActivity {
             return insets;
         });
     }
+
+
+
+
 }

@@ -2,14 +2,16 @@ package com.example.picutre;
 // 사용자가 선택한 폴더의 이미지를 파이어베이스 스토리지에 올리는 클래스(4번 화면)
 // 파이어베이스 스토리지에 이미지 업로드가 완료됐을 경우 사용자에게 다이얼로그로 완료됨을 알림
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import androidx.activity.EdgeToEdge;
@@ -18,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,13 +45,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoadingScreen extends AppCompatActivity {
 
-    /*private static final int PERMISSION_REQUEST_CODE = 100;
-    private static final String TAG = "LoadingScreen";
-    private String folderPath;
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;*/
-    private TextView tv_classify;
-    private ProgressBar progressBar;
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("http://172.21.195.40:5000")  // Flask 서버의 기본 URL
             .addConverterFactory(GsonConverterFactory.create())
@@ -62,25 +60,6 @@ public class LoadingScreen extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_loading_screen);
 
-        /*firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
-        //권한 요청 코드
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "권한요청");
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-        }
-
-        folderPath = getIntent().getStringExtra("folderPath");
-        if (folderPath != null) {
-            //uploadImages(folderPath); 파이어베이스로 직접 업로드하는 코드
-            //String dateTime = takeMetadata(folderPath);
-            //Log.d(TAG, "dateTime : "+dateTime);
-
-        }*/
-
         Intent intent = getIntent();
         String folderPath = intent.getStringExtra("folderPath");
 
@@ -92,36 +71,12 @@ public class LoadingScreen extends AppCompatActivity {
         // 폴더 내의 데이터가 크면 처리하는데 시간이 걸림
         zipAndUpload(galleryFolder, serverUrl);
 
-        tv_classify = findViewById(R.id.tv_classify);
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
     }
-
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한 승인됨, 이미지 업로드 실행
-            } else {
-                //Toast.makeText(this, "외부 저장소 읽기 권한이 거부되었습니다", Toast.LENGTH_SHORT).show();
-                //showPermissionDialog();
-                requestMediaPermissions(); // 미디어 접근 허용하도록 하기
-                //Log.d(TAG, "권한 허용되었습니다.");
-            }
-
-            folderPath = getIntent().getStringExtra("folderPath");
-            if (folderPath != null) {
-                Log.d(TAG, "업로드 이미지");
-                uploadImages(folderPath);
-            }
-
-        }
-    }*/
 
     private void showDialogAutomatically() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
@@ -146,12 +101,15 @@ public class LoadingScreen extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        //AlertDialog dialog = builder.create();
+        AlertDialog dialog = builder.create();
         builder.show();
     }
 
     public void zipAndUpload(File folder, String serverUrl) {
         try {
+            // 이미지에서 GPS 정보 추출
+            JSONArray gpsJSON = extractGPS(LoadingScreen.this, (folder.toString()));
+            
             // 메모리에서 ZIP 파일 생성
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
@@ -162,8 +120,12 @@ public class LoadingScreen extends AppCompatActivity {
             byte[] zipData = byteArrayOutputStream.toByteArray();
             byteArrayOutputStream.close();
 
-            // 서버로 ZIP 데이터 전송
-            uploadZipData(zipData, folder.getName() + ".zip");
+            // JSON 데이터를 바이트 배열로 변환
+            String jsonString = gpsJSON.toString();
+            byte[] jsonData = jsonString.getBytes("UTF-8");
+
+            // 서버로 ZIP 파일과 json 데이터 전송
+            uploadFiles(zipData, folder.getName() + ".zip");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,31 +155,19 @@ public class LoadingScreen extends AppCompatActivity {
         }
     }
 
-    private void uploadZipData(byte[] zipData, String fileName) {
-        // Retrofit을 통해 ZIP 파일 업로드
-        RequestBody requestFile = RequestBody.create(MediaType.parse("application/zip"), zipData);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", fileName, requestFile);
-        Log.d(TAG, "fileName : " + fileName);
+    private void uploadFiles(byte[] zipData, String fileName) {
+        // ZIP 파일 RequestBody
+        RequestBody zipRequestBody = RequestBody.create(MediaType.parse("application/zip"), zipData);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("zip_file", fileName, zipRequestBody);
+        //Log.d(TAG, "fileName : " + fileName);
 
         Call<ResponseBody> call = sendZip.uploadZipFile(body);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    // 여기서 사진 분류 완료 및 저장을 알림
-                    // DB 저장 대신 서버 저장으로 바꿈!
-                    Log.d("ZipUpload", "File uploaded successfully123123 : " + response.message());
-                    tv_classify.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    // Handler를 생성하고 2초(2000ms) 후에 동작을 수행하도록 설정합니다.
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            showDialogAutomatically(); // 완료 되었다고 결과를 확인하겠냐고 묻는 다이얼로그
-                        }
-                    }, 2000);
-
+                    showDialogAutomatically(); // 완료 되었다고 결과를 확인하겠냐고 묻는 다이얼로그
+                    Log.d("ZipUpload", "File uploaded successfully123123 : " + response.message()); // 200
                 } else {
                     Log.d("ZipUpload", "File upload failed123123: " + response.message());
                 }
@@ -229,129 +179,42 @@ public class LoadingScreen extends AppCompatActivity {
             }
         });
     }
-    /*private void requestMediaPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestPermissions(new String[]{
-                    Manifest.permission.READ_MEDIA_IMAGES,
 
-            }, PERMISSION_REQUEST_CODE);
-        } else {
-            requestPermissions(new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            }, PERMISSION_REQUEST_CODE);
-        }
-    }
+    public JSONArray extractGPS(Context context, String folderPath) {
+        JSONArray imagesArray = new JSONArray();
+        ContentResolver contentResolver = context.getContentResolver();
 
-    private void uploadImages(String folderPath) {
-        File folder = new File(folderPath);
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = {
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.LATITUDE,
+                MediaStore.Images.Media.LONGITUDE
+        };
+        String selection = MediaStore.Images.Media.DATA + " LIKE ?";
+        String[] selectionArgs = new String[]{folderPath + "%"};
+        Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
 
-        // 디렉터리 존재 여부 확인
-        if (!folder.exists() || !folder.isDirectory()) {
-            Log.e(TAG, "디렉터리가 존재하지 않거나 디렉터리가 아닙니다: " + folderPath);
-            return;
-        }
-        File[] files = folder.listFiles();
+        if (cursor != null) {
+            try {
+                while (cursor.moveToNext()) {
+                    @SuppressLint("Range") String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    @SuppressLint("Range") double latitude = cursor.getDouble(cursor.getColumnIndex(MediaStore.Images.Media.LATITUDE));
+                    @SuppressLint("Range") double longitude = cursor.getDouble(cursor.getColumnIndex(MediaStore.Images.Media.LONGITUDE));
 
-        if (files != null) { //파일이 널이 아니면 아래 실행
-            for (File file : files) {
-                if (file.isFile() && isImageFile(file.getName())) {
+                    JSONObject imageObject = new JSONObject();
+                    imageObject.put("file_name", filePath.substring(filePath.lastIndexOf("/") + 1));
+                    imageObject.put("latitude", latitude);
+                    imageObject.put("longitude", longitude);
 
-                    uploadImageToFirebase(this, file);
+                    imagesArray.put(imageObject);
                 }
-            }
-        }else {
-            Log.e(TAG, "디렉터리에 파일이 없습니다: " + folderPath);
-        }
-    }
-
-    private boolean isImageFile(String fileName) {
-        String[] imageExtensions = {"jpg", "jpeg", "png"};
-        for (String extension : imageExtensions) {
-            if (fileName.toLowerCase().endsWith(extension)) {
-                return true;
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse image data", e);
+            } finally {
+                cursor.close();
             }
         }
-        return false;
+        return imagesArray;
     }
-    
-    private void uploadImageToFirebase(Context context, File file) {
-
-        Uri fileUri = Uri.fromFile(file);
-        String datatime = null;
-        String cameraModel = null;
-        String flashMode = null;
-        String manufacturer = null;
-        String owner = null;
-        String gps = null;
-//        long fileSizeInBytes = file.length();
-//        String fileSizeString = formatFileSize(fileSizeInBytes);
-
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
-            ExifInterface exif = new ExifInterface(inputStream);
-
-            datatime = exif.getAttribute(ExifInterface.TAG_DATETIME);
-            cameraModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            flashMode = exif.getAttribute(ExifInterface.TAG_FLASH);
-            manufacturer = exif.getAttribute(ExifInterface.TAG_MAKE);
-            owner = exif.getAttribute(ExifInterface.TAG_ARTIST);
-            gps = exif.getAttribute(ExifInterface.TAG_GPS_AREA_INFORMATION);
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "IOException 발생", e);
-        }
-
-        String extension = MimeTypeMap.getFileExtensionFromUrl(fileUri.toString());
-        StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType("image/" + extension) // 이미지의 MIME 타입 설정
-                .setCustomMetadata("DateTime", datatime) // 사용자 정의 메타데이터 추가
-                .setCustomMetadata("CameraModel", cameraModel)
-                .setCustomMetadata("FlashMode", flashMode)
-                .setCustomMetadata("Manufacturer", manufacturer)
-                .setCustomMetadata("GPS", gps)
-                .build();
-
-        String folderName = file.getParent().toString();
-        int lastSlashIndex = folderName.lastIndexOf('/');
-        // 마지막 슬래시 다음 문자열을 추출한다 -> 파이어베이스 스토리지 저장 폴더명
-        String lastSegment = folderName.substring(lastSlashIndex + 1);
-
-        //StorageReference fileReference = storageReference.child("images/" + file.getName());
-        Log.d(TAG, "파이어베이스 저장 폴더 이름 : " + lastSegment);
-        StorageReference fileReference = storageReference.child(lastSegment + "/" + file.getName());
-
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Uploading...");
-
-        // 파이어베이스 스토리지에 파일을 올리는 코드, 각 이미지 파일 경로가 나옴
-        UploadTask uploadTask = fileReference.putFile(fileUri, metadata);
-        Log.d(TAG, "File URL : " + fileUri);
-
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            progressDialog.dismiss();
-            //Log.d(TAG, "Image uploaded successfully: " + file.getName());
-        }).addOnFailureListener(e -> {
-            progressDialog.dismiss();
-            //Log.e(TAG, "Failed to upload image: " + file.getName(), e);
-        }).addOnProgressListener(taskSnapshot -> {
-            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
-        });
-
-
-    }
-
-    public static String formatFileSize(long bytes) {
-        if (bytes >= 1073741824) { // 1 GB = 2^30 bytes
-            return String.format("%.2f GB", bytes / 1073741824.0);
-        } else if (bytes >= 1048576) { // 1 MB = 2^20 bytes
-            return String.format("%.2f MB", bytes / 1048576.0);
-        } else if (bytes >= 1024) { // 1 KB = 2^10 bytes
-            return String.format("%.2f KB", bytes / 1024.0);
-        } else {
-            return String.format("%d bytes", bytes);
-        }
-    }*/
 }

@@ -25,16 +25,4 @@
         android:layout_marginTop="70dp"
         android:indeterminate="true"/>
 
-    <TextView
-        android:id="@+id/tv_classify"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="사진 분류가 완료되었습니다."
-        android:gravity="center"
-        android:layout_marginTop="70dp"
-        android:visibility="invisible"
-        android:textSize="15dp"/>
-
-
-
 </LinearLayout>

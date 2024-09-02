@@ -86,7 +86,7 @@ public class inAppGallery extends AppCompatActivity {
 
     private void fetchDataFromServer() {
         Request request = new Request.Builder()
-                .url("http://172.21.195.40:5000/get/folderList") // Flask 서버의 URL
+                .url("http://192.168.7.10:5000/get/folderList") // Flask 서버의 URL
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -122,7 +122,7 @@ public class inAppGallery extends AppCompatActivity {
             String folderName = jsonObject.getString("folder_name");
             int photoCount = jsonObject.getInt("photo_count");
             String firstPhotoPath = jsonObject.optString("first_photo", "default.jpg");
-            String firstPhotoUrl = "http://172.21.195.40:5000/get/folderList/" + firstPhotoPath;
+            String firstPhotoUrl = "http://192.168.7.10:5000/get/folderList/" + firstPhotoPath;
             storageItemList.add(new StorageItem(folderName, firstPhotoUrl, photoCount));
         }
 

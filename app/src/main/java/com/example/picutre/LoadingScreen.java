@@ -40,7 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoadingScreen extends AppCompatActivity {
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://172.21.195.40:5000")  // Flask 서버의 기본 URL
+            .baseUrl("http://192.168.7.10:5000")  // Flask 서버의 기본 URL
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

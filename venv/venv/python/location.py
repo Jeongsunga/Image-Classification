@@ -73,6 +73,7 @@ def sortLocation(extractFolder):
 
             print("위도 : ", Lat, ", 경도 : ", Lon)
 
+            # 여기부터 수정 스타트...
             if ((34.8799 <= Lat <= 35.3959) and (128.7384 <= Lon <= 129.3728)):
                 dir_name = "Busan"
             elif ((37.4132 <= Lat <= 37.7151) and (26.7340 <= Lon <= 127.2693)):

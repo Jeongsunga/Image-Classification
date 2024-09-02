@@ -76,7 +76,7 @@ def sortLocation(extractFolder):
             print("위도 : ", Lat, ", 경도 : ", Lon)
 
             url = "https://dapi.kakao.com/v2/local/geo/coord2address.json"
-            api_key = '9fac2fcb4c9ed196ff5d37aca34406da'
+            #api_key = 
             headers = {
                 "Authorization": f"KakaoAK {api_key}"
             }

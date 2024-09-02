@@ -82,6 +82,10 @@ def upload_file():
 
         zip_file_path = './uploads/' + file.filename  # ZIP 파일의 경로
         extract_to_folder = file.filename.replace('.zip', '') # 압축을 풀고난 결과 파일을 저장할 폴더 이름
+
+        extracted = './Extracted' # 압축 해제 완료한 폴더들을 모아놓는 곳
+        os.makedirs(extracted, exist_ok=True)
+
         extractZip.unzip_file(zip_file_path, extract_to_folder)
 
         resultFolderPath = './ClassifyResult' # 분류 완료 폴더 저장할 폴더

@@ -3,6 +3,8 @@ from PIL.ExifTags import TAGS
 import os
 import numpy as np
 import shutil
+import requests
+from urllib.parse import urlparse
 
 def floatmul(a):
     return float(a)
@@ -73,23 +75,33 @@ def sortLocation(extractFolder):
 
             print("위도 : ", Lat, ", 경도 : ", Lon)
 
-            # 여기부터 수정 스타트...
-            if ((34.8799 <= Lat <= 35.3959) and (128.7384 <= Lon <= 129.3728)):
-                dir_name = "Busan"
-            elif ((37.4132 <= Lat <= 37.7151) and (26.7340 <= Lon <= 127.2693)):
-                dir_name = "Seoul"
-            elif ((35.3491 <= Lat <= 35.6350) and (128.5773 <= Lon <= 129.0228)):
-                dir_name = "Milyang"
-            else:
-                print("정보가 없습니다. 사진이 이동되지 않습니다.")
-                j = j + 1
-                continue
+            url = "https://dapi.kakao.com/v2/local/geo/coord2address.json"
+            api_key = '9fac2fcb4c9ed196ff5d37aca34406da'
+            headers = {
+                "Authorization": f"KakaoAK {api_key}"
+            }
+            params = {
+                "input_coord": "WGS84",
+                "x": str(Lon),
+                "y": str(Lat)
+            }
 
+            response = requests.get(url, headers=headers, params=params)
+            data = response.json()
+
+            region_1depth_name = data["documents"][0]["address"]["region_1depth_name"]
+            region_2depth_name = data["documents"][0]["address"]["region_2depth_name"]
+
+            bigCities = ["서울", "부산", "인천", "대구", "대전", "광주", "울산", "세종"]
+            if region_1depth_name in bigCities:
+                dir_name = region_1depth_name
+            else:
+                dir_name = region_2depth_name
+            print(dir_name)
                     
             dst = "./ClassifyResult/"
-            final_dst = dst + dir_name
+            final_dst = dst + dir_name + "_" + extractFolder
 
-            # 분류 완료된 결과를 DB에 저장해야 함
             if os.path.exists(final_dst):
                 print("이미 파일이 존재합니다.")
             else:

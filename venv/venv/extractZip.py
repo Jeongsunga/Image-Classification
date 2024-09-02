@@ -2,10 +2,8 @@
 import zipfile
 import os
 
-def unzip_file(zip_file_path, extract_to_folder):
-
-    # 절대 경로로 변환
-    #absolute_folder_path = os.path.abspath(extract_to_folder)   
+#UPLOAD_FOLDER = 'extracted'
+def unzip_file(zip_file_path, extract_to_folder): 
 
     # 추출할 폴더가 없으면 생성합니다.
     if not os.path.exists(extract_to_folder):

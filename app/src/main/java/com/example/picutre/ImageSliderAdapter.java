@@ -29,7 +29,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     private List<String> imageUrls;
     private Context context;
-    private boolean isImageOne = true;
+    private boolean isImageOne;
     private String metadataList/*, oneImageUrl*/;
 
     public ImageSliderAdapter(List<String> imageUrls, Context context, String metadataList/*, String oneImageUrl*/) {
@@ -88,7 +88,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         holder.btn_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "사진 정보 : " + metadataList);
+                //Log.d(TAG, "사진 정보 : " + metadataList);
                 new AlertDialog.Builder(context)
                         .setTitle("사진 정보")
                         .setMessage(metadataList).show();

@@ -1,12 +1,12 @@
 package com.example.picutre;
 // 사용자의 갤러리 요소들을 보여주는데 사용되는 어댑터 클래스
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
 
     private List<FolderItem> folderItems;
     private Context context;
-
     public FolderAdapter(List<FolderItem> folderItems ) {
         this.folderItems = folderItems;
     }
@@ -33,7 +32,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
     public FolderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         View view = LayoutInflater.from(context).inflate(R.layout.listview, parent, false);
-        //FolderAdapter.FolderViewHolder viewHolder = new FolderAdapter.FolderViewHolder(view);
         return new FolderViewHolder(view);
     }
 
@@ -46,12 +44,21 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
 
         // 사용자가 분류할 폴더를 선택했을 때 실행되는 코드
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, LoadingScreen.class); //로딩 스크린으로 화면 이동
-            String folderPath = new File(folderItem.getFirstImagePath()).getParent(); // 이미지 경로에서 폴더 경로 추출
-            intent.putExtra("folderPath", folderPath);
-
-            context.startActivity(intent);
-            //Log.d(TAG, "folderPath : " +  folderPath);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("알림");
+            builder.setMessage("데이터가 많으면 화면이 꺼지거나 로딩이 느릴 수 있으나 문제가 아닙니다.");
+            builder.setPositiveButton("확인", (dialog, which) -> {
+                dialog.dismiss();
+                Intent intent = new Intent(context, LoadingScreen.class); //로딩 스크린으로 화면 이동
+                String folderPath = new File(folderItem.getFirstImagePath()).getParent(); // 이미지 경로에서 폴더 경로 추출
+                intent.putExtra("folderPath", folderPath);
+                context.startActivity(intent);
+            });
+            builder.setNegativeButton("취소", (dialog, which) -> {
+                dialog.dismiss();
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
     }
 

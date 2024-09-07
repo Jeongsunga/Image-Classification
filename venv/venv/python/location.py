@@ -5,6 +5,7 @@ import numpy as np
 import shutil
 import requests
 from urllib.parse import urlparse
+from dotenv import load_dotenv
 
 def floatmul(a):
     return float(a)
@@ -75,8 +76,9 @@ def sortLocation(extractFolder):
 
             print("위도 : ", Lat, ", 경도 : ", Lon)
 
+            load_dotenv()
             url = "https://dapi.kakao.com/v2/local/geo/coord2address.json"
-            #api_key = 
+            api_key = os.getenv('API_KEY')
             headers = {
                 "Authorization": f"KakaoAK {api_key}"
             }
@@ -117,4 +119,4 @@ def sortLocation(extractFolder):
         j = j + 1
 
 
-#sortLocation('wahaha')
+#sortLocation('test1')

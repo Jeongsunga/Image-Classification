@@ -24,7 +24,7 @@ def sortDate(innoDate, fileName, extractFolder):
     image_path = './' + extractFolder + '/' + extractFolder + "/"
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
-    print(img_list_jpg)
+    #print(img_list_jpg)
     img_list_np = []
 
     j = 0

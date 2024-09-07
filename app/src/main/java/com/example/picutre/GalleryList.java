@@ -7,7 +7,6 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -89,8 +87,6 @@ public class GalleryList extends AppCompatActivity  {
                 firstImagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
 
                 String folderPath = new File(firstImagePath).getParent(); // 이미지 경로에서 폴더 경로 추출
-                //Log.d(TAG, "이미지 데이터? " + folderPath);
-
                 //long dateTaken = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN));
                 if (!folderMap.containsKey(folderName)) {
                     folderMap.put(folderName, firstImagePath);
@@ -105,7 +101,6 @@ public class GalleryList extends AppCompatActivity  {
                     folderCountMap.put(folderName, 1);
                     folderMap.put(folderName, firstImagePath);
                 }
-
             }
             cursor.close();
 
@@ -127,10 +122,8 @@ public class GalleryList extends AppCompatActivity  {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 권한 승인됨
-                // queryImages();
                 loadGalleryFolders();
             } else {
-                //Toast.makeText(this, "외부 저장소 읽기 권한이 거부되었습니다", Toast.LENGTH_SHORT).show();
                 //showPermissionDialog();
                 Log.d(TAG, "권한 거부 되었습니다.");
                 requestMediaPermissions(); // 미디어 접근 허용하도록 하기
@@ -144,7 +137,6 @@ public class GalleryList extends AppCompatActivity  {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissions(new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
-
             }, PERMISSION_REQUEST_CODE);
         } else {
             requestPermissions(new String[]{

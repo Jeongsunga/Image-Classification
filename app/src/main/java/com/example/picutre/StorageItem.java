@@ -1,6 +1,6 @@
 package com.example.picutre;
 
-// Storage~~~ : 파이어베이스 스토리지의 폴더들을 사용자의 스마트폰으로 보여주는 것
+// 서버에 분류 완료된 폴더의 이름, 사진 장수, 첫번째 이미지를 넘겨주는 클래스
 
 public class StorageItem {
     private String folderName2;

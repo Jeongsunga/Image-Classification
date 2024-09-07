@@ -23,11 +23,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
@@ -39,15 +41,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoadingScreen extends AppCompatActivity {
 
+    String baseURL = "http://172.21.249.56:5000";
+
+    OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
+            .writeTimeout(60, TimeUnit.SECONDS)   // 쓰기 타임아웃 설정
+            .readTimeout(60, TimeUnit.SECONDS)    // 읽기 타임아웃 설정
+            .build();
+
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://192.168.7.10:5000")  // Flask 서버의 기본 URL
+            .baseUrl(baseURL)  // Flask 서버의 기본 URL
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build();
 
     SendZip sendZip = retrofit.create(SendZip.class);
     private static final int BUFFER_SIZE = 2048;
 
-  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,13 +69,13 @@ public class LoadingScreen extends AppCompatActivity {
 
         // 갤러리 폴더의 경로
         File galleryFolder = new File(folderPath);
-        String serverUrl = "http://172.21.195.40:5000";
+        String serverUrl = baseURL;
 
         // Check if permissions are still granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Permissions are granted, proceed with your logic
-            Toast.makeText(this, "Permissions are granted here too", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Permissions are granted here too", Toast.LENGTH_SHORT).show();
             zipAndUpload(galleryFolder, serverUrl);
         } else {
             // Handle the case where permissions are not granted
@@ -81,10 +91,6 @@ public class LoadingScreen extends AppCompatActivity {
 
     public void zipAndUpload(File folder, String serverUrl) {
         try {
-            // 이미지에서 GPS 정보 추출
-            //extractGPS(LoadingScreen.this, String.valueOf(folder));
-            //Log.d(TAG, "GPS folderPath : " + folder);
-
             // 메모리에서 ZIP 파일 생성
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
@@ -94,10 +100,7 @@ public class LoadingScreen extends AppCompatActivity {
 
             byte[] zipData = byteArrayOutputStream.toByteArray();
             byteArrayOutputStream.close();
-            //String jsonString = gpsJSON.toString();
 
-            // 서버로 ZIP 파일과 json 데이터 따로 전송
-            //sendGpsData(jsonString);
             uploadFiles(zipData, folder.getName() + ".zip");
 
         } catch (IOException e) {
@@ -107,7 +110,6 @@ public class LoadingScreen extends AppCompatActivity {
 
     private void showDialogAutomatically() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
-        //builder.setTitle("권한 허");
         builder.setMessage("분류가 완료되었습니다. 분류 결과를 확인 하시겠습니까?");
         builder.setIcon(R.mipmap.ic_launcher);
         builder.setCancelable(false); // 뒤로가기 버튼으로 다이얼로그 종료 못함

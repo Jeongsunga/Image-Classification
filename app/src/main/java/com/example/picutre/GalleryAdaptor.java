@@ -1,6 +1,6 @@
 package com.example.picutre;
-// 폴더 이름, 사진 장 수, 사진이 3장씩 보이는 화면에서 사진 하나를 선택하면
-// 사진 한 장만 보이도록 하는데 도와주는 어댑터 클래스
+// 서버 갤러리 리스트에서 사용자가 폴더를 선택하면
+// 해당 폴더 내의 사진을 gridview에 보여주는 코드
 
 import static android.content.Intent.getIntent;
 

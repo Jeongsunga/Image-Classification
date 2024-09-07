@@ -2,7 +2,9 @@ package com.example.picutre;
 // FirebaseStorage_images에서 이미지를 하나 선택하면
 // 큰 화면에 사진 한장만 보이는 화면(4번 화면)
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -11,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,13 +45,24 @@ public class ImageOne extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_image_one);
 
+        // Check if permissions are still granted
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Permissions are granted, proceed with your logic
+            //Toast.makeText(this, "Permissions are granted here too", Toast.LENGTH_SHORT).show();
+            //zipAndUpload(galleryFolder, serverUrl);
+        } else {
+            // Handle the case where permissions are not granted
+            Toast.makeText(this, "Permissions are not granted", Toast.LENGTH_SHORT).show();
+        }
+
         Intent intent = getIntent();
-        imageUrls = intent.getStringArrayListExtra("imageUrls"); // 이미지 URL 리스트 받기
+        imageUrls = intent.getStringArrayListExtra("imagePaths"); // 이미지 URL 리스트 받기
         initialPosition = intent.getIntExtra("position", 0); // 처음 표시할 이미지의 위치
         selectImageUrl = intent.getStringExtra("selectImageUrl");
 
         // Firebase Storage 인스턴스 초기화
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        //FirebaseStorage storage = FirebaseStorage.getInstance();
 
         //String refImageUrl = extractReferencePath(selectImageUrl);
         //Log.d(TAG, "참조 경로 : " + refImageUrl);
@@ -69,7 +83,7 @@ public class ImageOne extends AppCompatActivity {
                 selectImageUrl = imageUrls.get(position);
                 String refImageUrl = extractReferencePath(selectImageUrl);
                 Log.d(TAG, "참조 경로 : " + refImageUrl);
-                StorageReference storageRef = storage.getReference().child(refImageUrl);
+                /*StorageReference storageRef = storage.getReference().child(refImageUrl);
 
                 storageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
                     @Override
@@ -110,7 +124,7 @@ public class ImageOne extends AppCompatActivity {
                     }
                 });
 
-                //adapter.updateRefImageUrl(refImageUrl);
+                adapter.updateRefImageUrl(refImageUrl);*/
             }
         });
 
@@ -137,7 +151,7 @@ public class ImageOne extends AppCompatActivity {
         }
     }
 
-    @NonNull
+    /*@NonNull
     public static String formatFileSize(long bytes) {
         if (bytes >= 1073741824) { // 1 GB = 2^30 bytes
             return String.format("%.2f GB", bytes / 1073741824.0);
@@ -148,6 +162,6 @@ public class ImageOne extends AppCompatActivity {
         } else {
             return String.format("%d bytes", bytes);
         }
-    }
+    }*/
 
 }

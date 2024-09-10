@@ -41,7 +41,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoadingScreen extends AppCompatActivity {
 
-    String baseURL = "http://172.21.249.56:5000";
+    String baseURL = "http://192.168.7.10:5000";
 
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
@@ -170,6 +170,7 @@ public class LoadingScreen extends AppCompatActivity {
                 } else {
                     Log.d("ZipUpload", "File upload failed123123: " + response.message());
                 }
+
             }
 
             @Override

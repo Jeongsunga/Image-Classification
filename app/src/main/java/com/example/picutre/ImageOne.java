@@ -5,6 +5,7 @@ package com.example.picutre;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,24 +14,18 @@ import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageMetadata;
-
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-
 import java.util.List;
 
-public class ImageOne extends AppCompatActivity {
+public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.OnItemClickListener {
 
     private static final String TAG = "ImageOne";
     private ViewPager2 viewPager;
@@ -38,6 +33,7 @@ public class ImageOne extends AppCompatActivity {
     private List<String> imageUrls;
     private int initialPosition;
     public String selectImageUrl, metadataList, oneImageUrl;
+    private static final int REQUEST_WRITE_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +44,18 @@ public class ImageOne extends AppCompatActivity {
         // Check if permissions are still granted
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // Permissions are granted, proceed with your logic
-            //Toast.makeText(this, "Permissions are granted here too", Toast.LENGTH_SHORT).show();
-            //zipAndUpload(galleryFolder, serverUrl);
+            //Toast.makeText(this, "Permissions are granted", Toast.LENGTH_SHORT).show();
         } else {
-            // Handle the case where permissions are not granted
             Toast.makeText(this, "Permissions are not granted", Toast.LENGTH_SHORT).show();
+        }
+
+        // 권한 체크 및 요청
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        } else {
+            // 권한이 이미 허용된 경우
+            //downloadAndSaveImage("http://example.com/image.jpg", "example_image.jpg");
         }
 
         Intent intent = getIntent();
@@ -61,16 +63,8 @@ public class ImageOne extends AppCompatActivity {
         initialPosition = intent.getIntExtra("position", 0); // 처음 표시할 이미지의 위치
         selectImageUrl = intent.getStringExtra("selectImageUrl");
 
-        // Firebase Storage 인스턴스 초기화
-        //FirebaseStorage storage = FirebaseStorage.getInstance();
-
-        //String refImageUrl = extractReferencePath(selectImageUrl);
-        //Log.d(TAG, "참조 경로 : " + refImageUrl);
-        // 스토리지에서 삭제할 파일의 참조를 가져옵니다. 파일 경로는 Firebase Storage의 참조경로를 사용합니다.
-        //StorageReference storageRef = storage.getReference().child(refImageUrl);
-
         viewPager = findViewById(R.id.viewPager);
-        adapter = new ImageSliderAdapter(imageUrls, ImageOne.this, ""/*, ""*/);
+        adapter = new ImageSliderAdapter(imageUrls, ImageOne.this, "", this);
         viewPager.setAdapter(adapter);
 
         // 처음 표시할 이미지 설정
@@ -83,48 +77,7 @@ public class ImageOne extends AppCompatActivity {
                 selectImageUrl = imageUrls.get(position);
                 String refImageUrl = extractReferencePath(selectImageUrl);
                 Log.d(TAG, "참조 경로 : " + refImageUrl);
-                /*StorageReference storageRef = storage.getReference().child(refImageUrl);
 
-                storageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
-                    @Override
-                    public void onSuccess(StorageMetadata metadata) {
-                        // 메타데이터가 성공적으로 가져온 경우
-                        String name = metadata.getName(); // 파일 이름
-                        String path = metadata.getPath(); // 파일 경로
-                        //String contentType = metadata.getContentType(); // 콘텐츠 타입
-
-                        long sizeBytes = metadata.getSizeBytes(); // 파일 크기 (바이트 단위)
-                        String volume = formatFileSize(sizeBytes); // 사용자가 읽기 편한 단위로 변환
-
-                        String dateTaken = metadata.getCustomMetadata("DateTime");  // 사진 촬영 날짜
-                        String cameraModel = metadata.getCustomMetadata("CameraModel"); // 사진 촬영 카메라 모델
-
-                        String flashMode = metadata.getCustomMetadata("FlashMode"); // 사진 촬영시 플래시 코드
-                        if(flashMode.equals("0")) flashMode = "플래시 끔";
-                        else flashMode = "플래시 켬";
-
-                        String manufacturer = metadata.getCustomMetadata("Manufacturer"); // 카메라 제조사
-                        String gps = metadata.getCustomMetadata("Gps"); // 사진 촬영 위치
-
-                        // GPS값만 null이 뜸
-                        Log.d(TAG, "imageGPS : " + gps);
-
-                        metadataList = "폴더/파일 이름 : " + path + "\n사진 크기 : " + volume +
-                                "\n\n촬영 시간 : " + dateTaken + "\n카메라 제조사 : " + manufacturer + "\n카메라 모델 : " + cameraModel
-                                + "\n플래시 모드 : " + flashMode;
-
-                        adapter.updateMetadata(metadataList);
-
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // 메타데이터 가져오기 실패 시
-                        Log.e(TAG, "Error getting metadata", exception);
-                    }
-                });
-
-                adapter.updateRefImageUrl(refImageUrl);*/
             }
         });
 
@@ -151,17 +104,38 @@ public class ImageOne extends AppCompatActivity {
         }
     }
 
-    /*@NonNull
-    public static String formatFileSize(long bytes) {
-        if (bytes >= 1073741824) { // 1 GB = 2^30 bytes
-            return String.format("%.2f GB", bytes / 1073741824.0);
-        } else if (bytes >= 1048576) { // 1 MB = 2^20 bytes
-            return String.format("%.2f MB", bytes / 1048576.0);
-        } else if (bytes >= 1024) { // 1 KB = 2^10 bytes
-            return String.format("%.2f KB", bytes / 1024.0);
-        } else {
-            return String.format("%d bytes", bytes);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_WRITE_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 허용됨
+                //downloadAndSaveImage("http://example.com/image.jpg", "example_image.jpg");
+            } else {
+                //Toast.makeText(this, "Write Permission Denied", Toast.LENGTH_SHORT).show();
+            }
         }
-    }*/
+    }
 
+
+    @Override
+    public void onHeartClick(int position) {
+
+    }
+
+    @Override
+    public void onInfoClick(int position) {
+
+    }
+
+    @Override
+    public void onDownloadClick(int position) {
+
+    }
+
+    @Override
+    public void onDeleteClick(int position) {
+        //Toast.makeText(ImageOne.this, "삭제 하였습니다.22", Toast.LENGTH_SHORT).show();
+        // 제대로 됨!
+    }
 }

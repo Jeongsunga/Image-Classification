@@ -40,7 +40,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
     private TextView imagecount, foldername;
 
     private ImageButton imageButton;
-    private static final String BASE_URL = "http://172.21.249.56:5000/";
+    private static final String BASE_URL = "http://192.168.7.10:5000/";
     private ImageApi imageApi;
 
     @Override
@@ -110,6 +110,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 }else {
                     Log.d(TAG, "응답에 실패하였습니다.");
                 }
+
             }
             @Override
             public void onFailure(Call<List<String>> call, Throwable t) {

@@ -1,11 +1,13 @@
+import math
 import os
 import shutil
 from flask import Flask, request, jsonify, send_file, send_from_directory
 import extractZip
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from werkzeug.utils import secure_filename
-import json
-import zipfile
+from PIL import Image
+from PIL.ExifTags import TAGS
+
 import sys
 sys.path.append('./python/')
 import yunet_face
@@ -13,6 +15,7 @@ import Example
 import pic_date
 import period
 import location
+import meta_location
 
 app = Flask(__name__)
 
@@ -151,7 +154,6 @@ def get_file(folderName, fileName):
         return send_file(file_path)
     else:
         return jsonify({'error': 'File not found'}), 404
-    
 
 
 BASE_IMAGE_DIR = './ClassifyResult/'
@@ -165,7 +167,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://192.168.35.221:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://192.168.7.10:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -178,6 +180,97 @@ def serve_image(folder_name, filename):
         return jsonify({'error': 'File not found'}), 404
     return send_from_directory(folder_path, filename)
 
+# 폰에서 이미지의 링크를 받고 해당 이미지의 메타 데이터를 넘겨주는 라우터
+@app.route('/image_metadata', methods=['POST'])
+def image_metadata():
+    image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
+
+    print(f"Converted image path: {image_url}")
+
+    # 이미지 파일 경로 추출 (로컬 경로로 변환)
+    image_path = image_url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+
+    # 불필요한 따옴표 제거
+    image_path = image_path.strip('"')
+
+    # 운영체제에 맞는 경로 구분자로 변환
+    image_path = os.path.normpath(image_path)
+
+    # 디버깅을 위한 경로 출력
+    print(f"Converted image path: {image_path}")
+
+    # 파일이 실제로 존재하는지 확인
+    if not os.path.exists(image_path):
+        print(f"File does not exist at path: {image_path}")
+        return jsonify({"error": "File not found"}), 404
+
+    try:
+        # 파일 메타데이터 추출
+        file_size = os.path.getsize(image_path)  # 파일 크기 (바이트 단위)
+        file_volume = convert_size(file_size)  # 사람이 읽기 쉬운 단위로 변환
+        file_name = os.path.basename(image_path)  # 파일명
+
+        # EXIF 데이터(촬영 날짜) 추출
+        img = Image.open(image_path)
+        exif_data = img._getexif()
+        capture_date = "Unknown"
+        if exif_data:
+            for tag, value in exif_data.items():
+                tag_name = TAGS.get(tag, tag)
+                if tag_name == 'DateTimeOriginal' or tag_name == 'DateTime':
+                    capture_date = value
+
+        # 촬영 위치 추출
+        address = meta_location.metaLocation(image_path)
+
+        print(file_name, file_volume, capture_date, address)
+
+        metadata = {
+            "file_name": file_name,
+            "file_size": file_volume,
+            "capture_date": capture_date,
+            "address": address
+        }
+
+        return jsonify(metadata), 200
+
+    except FileNotFoundError:
+        return jsonify({"error": "File not found"}), 404
+
+# 이미지의 크기를 사용자가 보기 편한 단위로 바꿔주는 함수
+def convert_size(size_bytes):
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {size_name[i]}"
+
+# 사용자가 삭제하길 원하는 이미지의 링크를 받고 삭제하는 라우터
+@app.route("/delete-image", methods=['POST'])
+def delete_image():
+    image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
+
+    # 이미지 파일 경로 추출 (로컬 경로로 변환)
+    image_path = image_url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+
+    # 불필요한 따옴표 제거
+    image_path = image_path.strip('"')
+
+    # 운영체제에 맞는 경로 구분자로 변환
+    image_path = os.path.normpath(image_path)
+
+    # 디버깅을 위한 경로 출력
+    print(f"Converted image path: {image_path}")
+
+    # 파일이 실제로 존재하는지 확인
+    if not os.path.exists(image_path):
+        print(f"File does not exist at path: {image_path}")
+        return jsonify({"error": "File not found"}), 404
+    
+    os.remove(image_path)
+    return jsonify({"status": "success", "message": "Data received successfully"})
 
 
 if __name__ == '__main__':

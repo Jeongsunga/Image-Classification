@@ -2,7 +2,6 @@ import math
 import os
 import shutil
 from flask import Flask, request, jsonify, send_file, send_from_directory
-import extractZip
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -16,6 +15,7 @@ import pic_date
 import period
 import location
 import meta_location
+import extractZip
 
 app = Flask(__name__)
 
@@ -167,7 +167,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://192.168.7.10:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://172.21.223.102:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -188,7 +188,7 @@ def image_metadata():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://172.21.223.102:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -247,31 +247,54 @@ def convert_size(size_bytes):
     s = round(size_bytes / p, 2)
     return f"{s} {size_name[i]}"
 
-# 사용자가 삭제하길 원하는 이미지의 링크를 받고 삭제하는 라우터
+# 사용자가 삭제하길 원하는 이미지의 링크를 받고 삭제 수행 후
+# 폴더 내의 이미지 장수, 업데이트된 이미지 링크를 반환하는 라우터
 @app.route("/delete-image", methods=['POST'])
 def delete_image():
-    image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
-
-    # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
-
-    # 불필요한 따옴표 제거
-    image_path = image_path.strip('"')
-
-    # 운영체제에 맞는 경로 구분자로 변환
-    image_path = os.path.normpath(image_path)
-
-    # 디버깅을 위한 경로 출력
-    print(f"Converted image path: {image_path}")
-
-    # 파일이 실제로 존재하는지 확인
-    if not os.path.exists(image_path):
-        print(f"File does not exist at path: {image_path}")
-        return jsonify({"error": "File not found"}), 404
     
-    os.remove(image_path)
-    return jsonify({"status": "success", "message": "Data received successfully"})
+    try:
+        image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
+        # 이미지 파일 경로 추출 (로컬 경로로 변환)
+        image_path = image_url.replace("http://172.21.223.102:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+
+        # 불필요한 따옴표 제거
+        image_path = image_path.strip('"')
+
+        # 운영체제에 맞는 경로 구분자로 변환
+        image_path = os.path.normpath(image_path)
+
+        # 디버깅을 위한 경로 출력
+        print(f"Converted image path: {image_path}")
+
+        # 파일이 실제로 존재하는지 확인
+        if not os.path.exists(image_path):
+            print(f"File does not exist at path: {image_path}")
+            return jsonify({"error": "File not found"}), 404
+    
+        os.remove(image_path)
+        print('삭제되었습니다.')
+    
+        # 해당 폴더 내의 이미지 개수 확인
+        # folder_path = os.path.dirname(image_path)
+        # image_files = [file for file in os.listdir(folder_path) if file.endswith(('jpg', 'jpeg', 'png'))]
+        # image_count = len(image_files)
+        # folder_name = os.path.basename(folder_path)
+
+        # base_url = "C:/Image-classification-Application-test/venv/venv/ClassifyResult"
+        # image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
+
+        #  결과 반환
+        # return jsonify({
+        #     'success': True,
+        #     'image_count': image_count,
+        #     'image_links': image_links
+        # })
+        return ({"status": "success", "message": "Data received successfully"})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

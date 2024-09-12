@@ -2,7 +2,6 @@ package com.example.picutre;
 // 서버 갤러리 리스트에서 사용자가 폴더를 선택하면
 // 해당 폴더 내의 사진을 gridview에 보여주는 코드
 
-import static android.content.Intent.getIntent;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 

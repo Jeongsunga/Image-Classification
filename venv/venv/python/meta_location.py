@@ -73,7 +73,10 @@ def metaLocation(image_path):
 
         response = requests.get(url, headers=headers, params=params)
         data = response.json()
-        road_address_name = data['documents'][0]['road_address']['address_name']
+        try:
+            road_address_name = data['documents'][0]['road_address']['address_name']
+        except TypeError:
+            road_address_name = data['documents'][0]['address']['address_name']
 
     except AttributeError:
         print("사진 위치 정보가 없습니다.")

@@ -6,5 +6,5 @@ import retrofit2.http.POST;
 
 public interface DeleteImageApi {
     @POST("/delete-image")
-    Call<DeleteImage> sendUrl(@Body String image_url);
+    Call<DeleteResponse> sendUrl(@Body String imageUrl);
 }

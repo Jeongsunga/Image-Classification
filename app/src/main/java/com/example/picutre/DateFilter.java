@@ -64,7 +64,7 @@ public class DateFilter extends AppCompatActivity {
         setContentView(R.layout.activity_datefilter);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+                .baseUrl("http://172.21.223.102:5000/")  // 로컬 호스트 주소
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

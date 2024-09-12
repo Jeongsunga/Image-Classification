@@ -15,3 +15,4 @@ public class DeleteImage {
         this.deleteImage = deleteImage;
     }
 }
+

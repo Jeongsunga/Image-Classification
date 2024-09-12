@@ -2,28 +2,53 @@ package com.example.picutre;
 // FirebaseStorage_images에서 이미지를 하나 선택하면
 // 큰 화면에 사진 한장만 보이는 화면(4번 화면)
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.viewpager2.widget.ViewPager2;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.OnItemClickListener {
 
@@ -32,8 +57,13 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     private ImageSliderAdapter adapter;
     private List<String> imageUrls;
     private int initialPosition;
-    public String selectImageUrl, metadataList, oneImageUrl;
+    public String selectImageUrl;
     private static final int REQUEST_WRITE_STORAGE = 1;
+    private DownloadImage downloadImage;
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("http://172.21.223.102:5000/")  // 로컬 호스트 주소
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,18 +74,8 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         // Check if permissions are still granted
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //Toast.makeText(this, "Permissions are granted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Permissions are not granted", Toast.LENGTH_SHORT).show();
-        }
-
-        // 권한 체크 및 요청
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
-        } else {
-            // 권한이 이미 허용된 경우
-            //downloadAndSaveImage("http://example.com/image.jpg", "example_image.jpg");
         }
 
         Intent intent = getIntent();
@@ -105,20 +125,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_WRITE_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 허용됨
-                //downloadAndSaveImage("http://example.com/image.jpg", "example_image.jpg");
-            } else {
-                //Toast.makeText(this, "Write Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-
-    @Override
     public void onHeartClick(int position) {
 
     }
@@ -130,12 +136,127 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
 
     @Override
     public void onDownloadClick(int position) {
-
+        showDownloadDialog(selectImageUrl);
     }
 
     @Override
     public void onDeleteClick(int position) {
-        //Toast.makeText(ImageOne.this, "삭제 하였습니다.22", Toast.LENGTH_SHORT).show();
-        // 제대로 됨!
+
+    }
+
+    public void showDownloadDialog(String imageUrl) {
+        new AlertDialog.Builder(ImageOne.this)
+                .setTitle("다운로드")
+                .setMessage("이 사진을 갤러리에 저장하시겠습니까?")
+                .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadAndSaveImage(imageUrl); // 서버의 이미지 URL 경로
+                    }
+                })
+                .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 아무 동작 수행 X
+                    }
+                }).show();
+    }
+
+    private void downloadAndSaveImage(String imagePath) {
+        Log.d(TAG, "imageUrl: " + imagePath);
+        downloadImage = retrofit.create(DownloadImage.class);
+        Call<ResponseBody> call = downloadImage.downloadImage(imagePath);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    new Thread(() -> {
+                        try {
+                            // 서버에서 이미지 다운로드
+                            ResponseBody body = response.body();
+                            //Log.d(TAG, "ResponseBody: " + body);
+                            //InputStream inputStream = body.byteStream(); // Initialize InputStream
+                            //Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            Bitmap bitmap = BitmapFactory.decodeStream(body.byteStream());
+
+                            // EXIF 정보를 읽기 위해 InputStream을 재설정
+                            //inputStream.close(); // 이전 InputStream을 닫기
+
+                            // 이미지 URL에서 폴더 이름 추출 (예: "서울_test1")
+                            String folderName = getFolderNameFromUrl(imagePath);
+
+                            // 외부 저장소에 이미지 저장 -> Pictures 라는 공동 파일에 저장됨
+//                            File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//                            File file = new File(externalStorageDir, "downloaded_image.jpg");
+//
+//                            try (OutputStream output = new FileOutputStream(file)) {
+//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+//                            }
+//
+//                            // 미디어 스캐너에 이미지 추가 알림
+//                            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), null);
+//
+//                            // 갤러리 업데이트
+//                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+
+                            // 외부 저장소 경로 설정 (폴더 생성)
+                            File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            //File externalStorageDir = getExternalFilesDir(null); // Use app-specific directory
+                            File folder = new File(externalStorageDir, folderName);
+                            if (!folder.exists()) {
+                                folder.mkdirs(); // 폴더가 없으면 생성
+                            }
+
+                            // 이미지 파일 경로 설정
+                            String imageName = getImageNameFromUrl(imagePath);
+                            File file = new File(folder, imageName);
+
+                            // 이미지를 저장
+                            try (OutputStream output = new FileOutputStream(file)) {
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+                            }
+
+                            // 미디어 스캐너에 이미지 추가 알림
+                            //MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), null);
+
+                            // 갤러리 업데이트
+                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+
+                            // UI 스레드에서 Toast 메시지
+                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "Image saved to gallery", Toast.LENGTH_SHORT).show());
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "Failed to save image", Toast.LENGTH_SHORT).show());
+                        }
+                    }).start();
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "Failed to download image1", Toast.LENGTH_SHORT).show());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                t.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "Failed to download image2", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    // 이미지 URL에서 폴더 이름 추출 메서드
+    private String getFolderNameFromUrl(String url) {
+        // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
+        Uri uri = Uri.parse(url);
+        List<String> pathSegments = uri.getPathSegments();
+        // "서울_test1" 부분을 추출 (images 뒤에 있는 폴더명)
+        return pathSegments.get(pathSegments.size() - 2);
+    }
+
+    // 이미지 URL에서 파일 이름 추출 메서드
+    private String getImageNameFromUrl(String url) {
+        // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
+        Uri uri = Uri.parse(url);
+        return uri.getLastPathSegment(); // "20240413_152945.jpg" 부분을 추출
     }
 }

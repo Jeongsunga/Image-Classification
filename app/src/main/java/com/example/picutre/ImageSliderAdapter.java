@@ -53,7 +53,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
     private OnItemClickListener listener;
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+            .baseUrl("http://172.21.223.102:5000/")  // 로컬 호스트 주소
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
@@ -106,26 +106,30 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         holder.btn_download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDownloadDialog(imageUrl);
+                listener.onDownloadClick(position);
+                //showDownloadDialog(imageUrl);
             }
         });
 
         holder.btn_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 서버로 데이터를 달라고 요청하기
-                sendImageUrlToServer(imageUrl);
-
-                new AlertDialog.Builder(context)
-                        .setTitle("사진 정보")
-                        .setMessage(infoes).show();
+                // 비동기적으로 서버에서부터 데이터를 받음
+                sendImageUrlToServer(imageUrl, new ServerCallback() {
+                    @Override
+                    public void onResponseReceived(String info) {
+                        new AlertDialog.Builder(context)
+                                .setTitle("사진 정보")
+                                .setMessage(info).show();
+                    }
+                });
             }
         });
 
         holder.btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDeleteDialog(imageUrl);
+                //showDeleteDialog(imageUrl);
                 listener.onDeleteClick(position);
             }
         });
@@ -165,7 +169,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Log.d(TAG, "Download Link : " + imageUrls.get(position));
-                        downloadAndSaveImage(imageUrl); // 서버의 이미지 URL 경로
+                       // downloadAndSaveImage(imageUrl); // 서버의 이미지 URL 경로
                     }
                 })
                 .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
@@ -176,48 +180,8 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                 }).show();
     }
 
-    public void showDeleteDialog(String imageUrl) {
-        new AlertDialog.Builder(context)
-                .setTitle("삭제")
-                .setMessage("이 사진을 삭제하시겠습니까?")
-                .setPositiveButton("네", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteImageApi = retrofit.create(DeleteImageApi.class);
-
-                        Call<DeleteImage> call = deleteImageApi.sendUrl(imageUrl);
-                        call.enqueue(new Callback<DeleteImage>() {
-                            @Override
-                            public void onResponse(Call<DeleteImage> call, Response<DeleteImage> response) {
-                                if(response.isSuccessful() && response.body() != null) {
-                                    Toast.makeText(context, "삭제 하였습니다.", Toast.LENGTH_SHORT).show();
-                                    // 이전 화면으로 돌아가기, 사진 장수까지 맞춰야 됨,,,
-
-
-                                } else {
-                                    Log.d(TAG, "삭제 실패 했습니다.11");
-                                    Toast.makeText(context, "삭제하지 못했습니다.", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<DeleteImage> call, Throwable t) {
-                                Log.d(TAG, "삭제 실패 했습니다.22");
-                            }
-                        });
-                    }
-                })
-                .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 아무 동작 수행 X
-                    }
-                }).show();
-    }
-
-    public void sendImageUrlToServer(String imageUrl) {
+    public void sendImageUrlToServer(String imageUrl, ServerCallback callback) {
         imageUrlApi = retrofit.create(ImageUrlApi.class);
-
         Call<Metadatas> call = imageUrlApi.sendAPI(imageUrl);
         call.enqueue(new Callback<Metadatas>() {
             @Override
@@ -232,16 +196,15 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
                     infoes = "파일이름 : " + fileName + "\n파일 크기 : " + fileSize + "\n촬영 시간 : " + captureDate +
                             "\n촬영 위치 : " + address;
+                    callback.onResponseReceived(infoes);
                 } else {
                     Log.d(TAG, "응답 바디가 잘못됨.");
-
                 }
             }
 
             @Override
             public void onFailure(Call<Metadatas> call, Throwable t) {
                 Log.d(TAG, "응답이 아예 오지 않음.");
-
             }
         });
     }

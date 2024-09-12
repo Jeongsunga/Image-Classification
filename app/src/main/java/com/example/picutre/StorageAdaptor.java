@@ -42,7 +42,11 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
         StorageItem storageItem = storageItemList.get(position);
         holder.folderNameTextView.setText(storageItem.getFolderName2());
         holder.countTextView.setText(String.valueOf(storageItem.getCount2()));
-        Picasso.get().load(storageItem.getFirstImagePath2()).into(holder.firstImageView);
+        Picasso.get()
+                .load(storageItem.getFirstImagePath2())
+                .resize(75, 75) // 원하는 크기로 조정
+                .centerInside() // 크기 조정 후, 이미지가 중앙에 위치하도록 설정
+                .into(holder.firstImageView);
                 /*if (storageItem.getFirstImagePath2() != null) {
 
                     Glide.with(holder.itemView.getContext())

@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.7.10:5000/")  // 로컬 호스트 주소
+                .baseUrl("http://172.21.223.102:5000/")  // 로컬 호스트 주소
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -113,10 +113,10 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 // Permissions granted
-                //Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show();
             } else {
                 // Permissions denied
-                //Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
             }
         }
     }

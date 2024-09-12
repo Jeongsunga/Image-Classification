@@ -41,7 +41,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoadingScreen extends AppCompatActivity {
 
-    String baseURL = "http://192.168.7.10:5000";
+    String baseURL = "http://172.21.223.102:5000";
 
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
@@ -111,7 +111,7 @@ public class LoadingScreen extends AppCompatActivity {
     private void showDialogAutomatically() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
         builder.setMessage("분류가 완료되었습니다. 분류 결과를 확인 하시겠습니까?");
-        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setIcon(R.drawable.ic_launcher_foreground);
         builder.setCancelable(false); // 뒤로가기 버튼으로 다이얼로그 종료 못함
         builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
             @Override

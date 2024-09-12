@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,10 +39,11 @@ public class FirebaseStorage_images extends AppCompatActivity {
     private ImageAdapter imageAdapter;
     private RequestManager glideRequestManager;
     private TextView imagecount, foldername;
-
     private ImageButton imageButton;
-    private static final String BASE_URL = "http://192.168.7.10:5000/";
+    private static final String BASE_URL = "http://172.21.223.102:5000/";
     private ImageApi imageApi;
+    private static final int DELETE_PHOTO_REQUEST_CODE = 1001;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
             return insets;
         });
     }
+
     private void loadImages(String folderName) {
         Call<List<String>> call = imageApi.getImages(folderName);
         call.enqueue(new Callback<List<String>>() {

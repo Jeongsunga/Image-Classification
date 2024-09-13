@@ -167,7 +167,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://172.21.223.102:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://172.21.210.201:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -188,7 +188,7 @@ def image_metadata():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://172.21.223.102:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -256,7 +256,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://172.21.223.102:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -276,21 +276,21 @@ def delete_image():
         print('삭제되었습니다.')
     
         # 해당 폴더 내의 이미지 개수 확인
-        # folder_path = os.path.dirname(image_path)
-        # image_files = [file for file in os.listdir(folder_path) if file.endswith(('jpg', 'jpeg', 'png'))]
-        # image_count = len(image_files)
-        # folder_name = os.path.basename(folder_path)
+        folder_path = os.path.dirname(image_path)
+        image_files = [file for file in os.listdir(folder_path) if file.endswith(('jpg', 'jpeg', 'png'))]
+        image_count = len(image_files)
+        folder_name = os.path.basename(folder_path)
 
-        # base_url = "C:/Image-classification-Application-test/venv/venv/ClassifyResult"
-        # image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
+        base_url = "http://172.21.210.201:5000/images"
+        image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
-        #  결과 반환
-        # return jsonify({
-        #     'success': True,
-        #     'image_count': image_count,
-        #     'image_links': image_links
-        # })
-        return ({"status": "success", "message": "Data received successfully"})
+        # 결과 반환
+        return jsonify({
+            'success': True,
+            'image_count': image_count,
+            'image_links': image_links
+        })
+        #return ({"status": "success", "message": "Data received successfully"})
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})

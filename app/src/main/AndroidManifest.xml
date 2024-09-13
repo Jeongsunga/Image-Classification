@@ -23,28 +23,28 @@
         android:theme="@style/Theme.Picutre"
         tools:targetApi="31">
         <activity
-            android:name=".ImageOne"
+            android:name=".ui.activity.ImageOne"
             android:exported="false" />
         <activity
-            android:name=".FirebaseStorage_images"
+            android:name=".ui.activity.FirebaseStorage_images"
             android:exported="false" />
         <activity
-            android:name=".LoadingScreen"
+            android:name=".ui.activity.LoadingScreen"
             android:exported="false" />
         <activity
-            android:name=".DateFilter"
+            android:name=".ui.activity.DateFilter"
             android:exported="false" />
         <activity
-            android:name=".inAppGallery"
+            android:name=".ui.activity.inAppGallery"
             android:exported="false" />
         <activity
-            android:name=".GalleryList"
+            android:name=".ui.activity.GalleryList"
             android:exported="false" />
         <activity
-            android:name=".Filter"
+            android:name=".ui.activity.Filter"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

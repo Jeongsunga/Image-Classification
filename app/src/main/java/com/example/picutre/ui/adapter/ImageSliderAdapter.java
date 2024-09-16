@@ -4,19 +4,12 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -24,51 +17,44 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.picutre.constants.BaseURL;
+import com.example.picutre.model.LinkAndHeart;
 import com.example.picutre.model.Metadatas;
 import com.example.picutre.R;
-import com.example.picutre.network.interfaces.ApiService;
-import com.example.picutre.network.interfaces.DeleteImageApi;
-import com.example.picutre.network.interfaces.DownloadImage;
 import com.example.picutre.network.interfaces.ImageUrlApi;
 import com.example.picutre.network.interfaces.ServerCallback;
 import com.example.picutre.network.retrofit.RetrofitClient;
+import com.example.picutre.ui.activity.ImageOne;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.ImageViewHolder>{
 
     private List<String> imageUrls;
     private Context context;
-    private boolean isImageOne;
-    private String metadataList;
     private ImageUrlApi imageUrlApi;
-    private DeleteImageApi deleteImageApi;
-    private DownloadImage downloadImage;
     String infoes;
     private OnItemClickListener listener;
     String baseurl = BaseURL.BASE_URL;
-
-//    Retrofit retrofit = new Retrofit.Builder()
-//            .baseUrl(baseurl)  // 로컬 호스트 주소
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build();
     Retrofit retrofit = RetrofitClient.getClient(baseurl);
+    private LinkAndHeart linkAndHeart;
 
-    public ImageSliderAdapter(List<String> imageUrls, Context context, String metadataList, OnItemClickListener listener) {
+    public ImageSliderAdapter(List<String> imageUrls, Context context, LinkAndHeart linkAndHeart, OnItemClickListener listener) {
         this.imageUrls = imageUrls;
         this.context = context;
-        this.metadataList = metadataList;
+        this.linkAndHeart = linkAndHeart;
         this.listener = listener;
     }
 
@@ -94,20 +80,64 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         String imageUrl = imageUrls.get(position);
         Glide.with(context)
                 .load(imageUrl)
-                .placeholder(R.drawable.clover)
-                .error(R.drawable.nwh28)
+                .placeholder(R.drawable.loading2)
+                .error(R.drawable.error)
                 .into(holder.imageView);
+
+        Log.d(TAG, "linkAndHeart hash2: " + linkAndHeart.getImageUrl() + "boolean2: " + linkAndHeart.isHeart());
+
+        // 하트 상태에 따라 버튼 이미지 설정
+        if (linkAndHeart.isHeart()) {
+            holder.btn_heart.setImageResource(R.drawable.fullheart);  // 좋아요가 눌린 상태
+        } else {
+            holder.btn_heart.setImageResource(R.drawable.heart);  // 좋아요가 눌리지 않은 상태
+        }
+        ImageOne imageOne = new ImageOne();
 
         holder.btn_heart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if (isImageOne) {
-                        holder.btn_heart.setImageResource(R.drawable.fullheart); // 변경할 이미지
-                    } else {
-                        holder.btn_heart.setImageResource(R.drawable.heart); // 원래 이미지
-                    }
-                    // 상태 토글
-                    isImageOne = !isImageOne;
+
+                String urlToHash = imageOne.getHash(imageUrl);
+                Map<String, Object> updates = new HashMap<>();
+
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference databaseReference = database.getReference();
+                if(linkAndHeart.isHeart()) {
+                    updates.put(urlToHash, false);  // 좋아요 값 변경
+                    databaseReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // 업데이트 성공
+                                linkAndHeart.setHeart(false);  // 좋아요 상태 변경
+                                Log.d(TAG, "파이어베이스 업데이트 성공");
+                            } else {
+                                // 업데이트 실패
+                                Log.d(TAG, "파이어베이스 업데이트 실패");
+                            }
+                        }
+                    });
+                    holder.btn_heart.setImageResource(R.drawable.heart);  // 좋아요 O -> X
+
+                }else {
+                    updates.put(urlToHash, true);  // 좋아요 값 변경
+                    databaseReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // 업데이트 성공
+                                linkAndHeart.setHeart(true);  // 좋아요 상태 변경
+                                Log.d(TAG, "파이어베이스 업데이트 성공");
+                            } else {
+                                // 업데이트 실패
+                                Log.d(TAG, "파이어베이스 업데이트 실패");
+                            }
+                        }
+                    });
+                    holder.btn_heart.setImageResource(R.drawable.fullheart);  // 좋아요 X -> O
+
+                }
             }
         });
 
@@ -169,25 +199,6 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         }
     }
 
-    public void showDownloadDialog(String imageUrl) {
-        new AlertDialog.Builder(context)
-                .setTitle("다운로드")
-                .setMessage("이 사진을 갤러리에 저장하시겠습니까?")
-                .setPositiveButton("네", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Log.d(TAG, "Download Link : " + imageUrls.get(position));
-                       // downloadAndSaveImage(imageUrl); // 서버의 이미지 URL 경로
-                    }
-                })
-                .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 아무 동작 수행 X
-                    }
-                }).show();
-    }
-
     public void sendImageUrlToServer(String imageUrl, ServerCallback callback) {
         imageUrlApi = retrofit.create(ImageUrlApi.class);
         Call<Metadatas> call = imageUrlApi.sendAPI(imageUrl);
@@ -204,6 +215,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
                     infoes = "파일이름 : " + fileName + "\n파일 크기 : " + fileSize + "\n촬영 시간 : " + captureDate +
                             "\n촬영 위치 : " + address;
+                    Log.d(TAG, "메타데이터: " + infoes);
                     callback.onResponseReceived(infoes);
                 } else {
                     Log.d(TAG, "응답 바디가 잘못됨.");
@@ -216,55 +228,4 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             }
         });
     }
-
-    private void downloadAndSaveImage(String imagePath) {
-
-        downloadImage = retrofit.create(DownloadImage.class);
-        Call<ResponseBody> call = downloadImage.downloadImage(imagePath);
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    new Thread(() -> {
-                        try {
-                            // 서버에서 이미지 다운로드
-                            ResponseBody body = response.body();
-                            Bitmap bitmap = BitmapFactory.decodeStream(body.byteStream());
-
-                            // 외부 저장소에 이미지 저장
-                            File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                            File file = new File(externalStorageDir, "downloaded_image.jpg");
-
-                            try (OutputStream output = new FileOutputStream(file)) {
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
-                            }
-
-                            // 미디어 스캐너에 이미지 추가 알림
-                            //MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), null);
-
-                            // 갤러리 업데이트
-                            //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-
-                            // UI 스레드에서 Toast 메시지
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show());
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show());
-                        }
-                    }).start();
-                } else {
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "Failed to download image", Toast.LENGTH_SHORT).show());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                t.printStackTrace();
-                //new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(MainActivity.this, "Failed to download image", Toast.LENGTH_SHORT).show());
-            }
-        });
-    }
-
 }

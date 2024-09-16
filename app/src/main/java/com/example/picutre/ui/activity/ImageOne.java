@@ -3,7 +3,6 @@ package com.example.picutre.ui.activity;
 // 큰 화면에 사진 한장만 보이는 화면(4번 화면)
 
 
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,11 +32,17 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.picutre.constants.BaseURL;
 import com.example.picutre.model.DeleteResponse;
+import com.example.picutre.model.LinkAndHeart;
 import com.example.picutre.network.retrofit.RetrofitClient;
 import com.example.picutre.ui.adapter.ImageSliderAdapter;
 import com.example.picutre.R;
 import com.example.picutre.network.interfaces.DeleteImageApi;
 import com.example.picutre.network.interfaces.DownloadImage;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,15 +50,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.OnItemClickListener {
 
@@ -68,12 +77,8 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     private boolean success;
     String baseurl = BaseURL.BASE_URL;
     Retrofit retrofit = RetrofitClient.getClient(baseurl);
-    private static final int DELETE_PHOTO_REQUEST_CODE = 1001;  // 동일한 값 사용
+    private LinkAndHeart linkAndHeart = new LinkAndHeart();
 
-//    Retrofit retrofit = new Retrofit.Builder()
-//            .baseUrl(baseurl)  // 로컬 호스트 주소
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,22 +97,122 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         imageUrls = intent.getStringArrayListExtra("imagePaths"); // 이미지 URL 리스트 받기
         initialPosition = intent.getIntExtra("position", 0); // 처음 표시할 이미지의 위치
         selectImageUrl = intent.getStringExtra("selectImageUrl");
+        Log.d(TAG, "해시 처리 하기 전에 이미지 링크: " + selectImageUrl);
 
-        viewPager = findViewById(R.id.viewPager);
-        adapter = new ImageSliderAdapter(imageUrls, ImageOne.this, "", this);
-        viewPager.setAdapter(adapter);
+        // 파이어베이스 리얼타임 스토리지에는 특수문자가 저장되지 않아, 이미지 링크를 해시값으로 변환해 저장
+        // MD5는 동일한 입력값이면 출력값도 동일하기 때문에 스토리지에서 찾을 수 있음.
+        String urlToHash = getHash(selectImageUrl);
+        Log.d(TAG, "해시 처리 후의 링크: " + urlToHash);
 
-        // 처음 표시할 이미지 설정
-        viewPager.setCurrentItem(initialPosition);
-
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = database.getReference();
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                selectImageUrl = imageUrls.get(position);
-                String refImageUrl = extractReferencePath(selectImageUrl);
-                Log.d(TAG, "참조 경로 : " + refImageUrl);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                if(!dataSnapshot.exists() || !dataSnapshot.hasChildren()) {
+                    Log.d(TAG, "파이어베이스에 데이터가 없습니다.");
+                    DatabaseReference key = database.getReference(urlToHash);
+                    key.setValue(false);
+                    Toast.makeText(ImageOne.this, "DB에 저장되었습니다.1", Toast.LENGTH_SHORT).show();
+                    linkAndHeart.setHeart(false);
+                }
+                else {
+                    boolean imageExists = false;  // 데이터 존재 여부를 추적하기 위한 변수
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {  //반복문으로 데이터 리스트 추출
+
+                        if(snapshot.getKey().equals(urlToHash)) {
+                            imageExists = true;  // 데이터가 존재하는 경우
+
+                            if(snapshot.getValue(Boolean.class)) {
+                                Log.d(TAG, "해당 이미지가 존재하며, true입니다.");
+                                linkAndHeart.setHeart(true);
+                                break;
+                            }
+                            else {
+                                Log.d(TAG, "해당 이미지가 존재하며, false입니다.");
+                                linkAndHeart.setHeart(false);
+                                break;
+                            }
+                        }
+                    }
+
+                    // 반복문이 끝난 후 데이터 존재 여부 확인
+                    if (!imageExists) {
+                        Log.d(TAG, "해당 이미지가 존재하지 않습니다.");
+                        DatabaseReference key = database.getReference().child(urlToHash);
+                        key.setValue(false);
+                        Toast.makeText(ImageOne.this, "DB에 저장되었습니다.2", Toast.LENGTH_SHORT).show();
+                        linkAndHeart.setHeart(false);
+                    }
+                }
+                linkAndHeart.setImageUrl(urlToHash);
+                Log.d(TAG, "파이어베이스 링크: " + linkAndHeart.getImageUrl() + " 불린 값: " + linkAndHeart.isHeart());
+
+                // 여기에 다음에 수행될 동작들을 넣음
+                viewPager = findViewById(R.id.viewPager);
+                adapter = new ImageSliderAdapter(imageUrls, ImageOne.this, linkAndHeart, ImageOne.this);
+                viewPager.setAdapter(adapter);
+
+                // 처음 표시할 이미지 설정
+                viewPager.setCurrentItem(initialPosition);
+
+                viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        selectImageUrl = imageUrls.get(position);
+                        String hashedUrl = getHash(selectImageUrl);
+                        //String refImageUrl = extractReferencePath(selectImageUrl);
+                        //Log.d(TAG, "참조 경로 : " + refImageUrl);
+
+                        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference().child(hashedUrl);
+                        databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(dataSnapshot.exists()) { // 파이어베이스 내에 데이터가 하나라도 있을 때
+                                    Object data = dataSnapshot.getValue();
+                                    if(data != null && data instanceof HashMap) {
+                                        HashMap<String, Object> map = (HashMap<String, Object>) data;
+                                        Boolean heartState = (Boolean) map.get(hashedUrl);
+                                        if(heartState != null) {
+                                            if(heartState) { // 이미지의 좋아요값이 true 일 때
+                                                linkAndHeart.setHeart(heartState);
+                                                adapter.notifyItemChanged(position);
+                                            }else{ // 이미지의 좋아요값이 false 일 때
+                                                linkAndHeart.setHeart(false); // 기본값
+                                                adapter.notifyItemChanged(position);
+                                            }
+                                        }else {  // 이미지의 해시값이 없을 때
+                                            DatabaseReference key = database.getReference(hashedUrl);
+                                            key.setValue(false);
+                                            Log.d(TAG, "이미지의 해시 값 존재 X, DB에 업로드 완료");
+                                            linkAndHeart.setHeart(false); // 기본값
+                                            adapter.notifyItemChanged(position);
+                                        }
+                                    }
+                                }else { // 파이어베이스에 데이터가 아예 없을 때, 데이터베이스에 새로 올리는 코드 작성
+                                    DatabaseReference key = database.getReference(hashedUrl);
+                                    key.setValue(false);
+                                    Log.d(TAG, "DB에 아무런 데이터가 없음, DB에 업로드 완료");
+                                    linkAndHeart.setHeart(false); // 기본값
+                                    adapter.notifyItemChanged(position);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.d(TAG, "Firebase에서 데이터를 가져오지 못했습니다.");
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "파이어베이스 데이터베이스 에러");
             }
         });
 
@@ -118,7 +223,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         });
     }
 
-    @Nullable
+    /*@Nullable
     public static String extractReferencePath(String url) {
         try {
             // URL에서 파일 경로 부분 추출
@@ -132,11 +237,10 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             e.printStackTrace();
             return null; // 예외 처리
         }
-    }
+    }*/
 
     @Override
     public void onHeartClick(int position) {
-
     }
 
     @Override
@@ -300,5 +404,21 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                 Toast.makeText(ImageOne.this, "응답이 오지 않았습니다.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // 이미지 URL을 해시로 변환 (MD5 사용 예시)
+    public String getHash(@NonNull String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

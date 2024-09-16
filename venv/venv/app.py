@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from werkzeug.utils import secure_filename
 from PIL import Image
 from PIL.ExifTags import TAGS
-
+import piexif
 import sys
 sys.path.append('./python/')
 import yunet_face
@@ -167,7 +167,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://172.21.210.201:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://192.168.1.68:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -188,7 +188,7 @@ def image_metadata():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -256,7 +256,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -281,7 +281,7 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://172.21.210.201:5000/images"
+        base_url = "http://192.168.1.68:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         # 결과 반환
@@ -294,7 +294,95 @@ def delete_image():
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+# 사진의 좋아요 값을 반환하는 라우터
+@app.route("/heart", methods=['POST'])
+def send_heart():
+    data = request.get_json()  # JSON 형식으로 데이터를 받음
+    image_url = data.get("imageUrl", "")  # "imageUrl"이라는 키의 값을 가져옴
+    #image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
+
+    print(f"Converted image path: {image_url}")
+
+    # 이미지 파일 경로 추출 (로컬 경로로 변환)
+    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+
+    # 불필요한 따옴표 제거
+    image_path = image_path.strip('"')
+
+    # 운영체제에 맞는 경로 구분자로 변환
+    image_path = os.path.normpath(image_path)
+
+    # 디버깅을 위한 경로 출력
+    print(f"Converted image path: {image_path}")
+
+    # 파일이 실제로 존재하는지 확인
+    if not os.path.exists(image_path):
+        print(f"File does not exist at path: {image_path}")
+        return jsonify({"error": "File not found"}), 404
     
+    favorite = False
+
+    try:
+        # 파일 메타데이터 추출
+        image = Image.open(image_path)
+        exif_data = image._getexif()
+    
+        if exif_data is not None:   # 있다면
+            for tag, value in exif_data.items():
+                tag_name = TAGS.get(tag, tag)
+                if tag_name == "UserComment":
+                    favorite = value
+                    break
+
+        print(favorite)
+        return jsonify({"heart":favorite}), 200
+
+    except FileNotFoundError:
+        return jsonify({"error": "File not found"}), 404
+
+# 사진의 좋아요 값을 업데이트하는 라우터
+@app.route("/update-favorite", methods=['POST'])
+def update_favorite():
+    data = request.get_json()  # JSON 형식으로 데이터를 받음
+    image_url = data.get("imageUrl", "")  # "imageUrl"이라는 키의 값을 가져옴
+    #image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
+
+    # 이미지 파일 경로 추출 (로컬 경로로 변환)
+    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_path.strip('"')
+    image_path = os.path.normpath(image_path)
+
+    # 디버깅을 위한 경로 출력
+    #print(f"Converted image path: {image_path}")
+
+    # 파일이 실제로 존재하는지 확인
+    if not os.path.exists(image_path):
+        #print(f"File does not exist at path: {image_path}")
+        return jsonify({"error": "File not found"}), 404
+    
+    # 이미지의 EXIF 데이터 로드
+    exif_dict = piexif.load(image_path)
+
+    # EXIF의 'UserComment' 태그 값 가져오기 (기본값은 빈 문자열)
+    user_comment = exif_dict["Exif"].get(piexif.ExifIFD.UserComment, b"false").decode("ascii")
+    
+    # 기존 값이 "true"면 "false"로, "false"면 "true"로 변경
+    if user_comment == "true":
+        new_comment = "false"
+    else:
+        new_comment = "true"
+    
+    # EXIF의 'UserComment' 태그에 새로운 값을 설정
+    exif_dict["Exif"][piexif.ExifIFD.UserComment] = new_comment.encode("ascii")
+    
+    # 새로운 EXIF 데이터를 이미지에 저장
+    exif_bytes = piexif.dump(exif_dict)
+    image = Image.open(image_path)
+    image.save(image_path, exif=exif_bytes)
+
+    return jsonify({"status": "success", "message": "Data received successfully"})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

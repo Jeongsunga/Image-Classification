@@ -4,6 +4,7 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,16 +59,6 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         this.listener = listener;
     }
 
-//    public void updateMetadata(String metadataList) {
-//        this.metadataList = metadataList;
-//        notifyDataSetChanged(); // Adapter에 데이터가 변경되었음을 알림
-//    }
-
-//    public void updateRefImageUrl(String oneImageUrl) {
-//        this.oneImageUrl = oneImageUrl;
-//        notifyDataSetChanged();
-//    }
-
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -94,6 +85,10 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         }
         ImageOne imageOne = new ImageOne();
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("folderName", context.MODE_PRIVATE);
+        String value = sharedPreferences.getString("foldername", "default");
+        Log.d(TAG, "sharedPreferences: " + value);
+
         holder.btn_heart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,7 +97,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                 Map<String, Object> updates = new HashMap<>();
 
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference databaseReference = database.getReference();
+                DatabaseReference databaseReference = database.getReference(value);
                 if(linkAndHeart.isHeart()) {
                     updates.put(urlToHash, false);  // 좋아요 값 변경
                     databaseReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {

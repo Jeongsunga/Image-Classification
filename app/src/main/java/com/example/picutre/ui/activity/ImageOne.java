@@ -6,6 +6,7 @@ package com.example.picutre.ui.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import androidx.appcompat.app.AlertDialog;
@@ -104,17 +105,24 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         String urlToHash = getHash(selectImageUrl);
         Log.d(TAG, "해시 처리 후의 링크: " + urlToHash);
 
+
+        SharedPreferences sharedPreferences = getSharedPreferences("folderName", MODE_PRIVATE);
+        String value = sharedPreferences.getString("foldername", "default");
+        Log.d(TAG, "sharedPreferences: " + value);
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = database.getReference();
+        DatabaseReference databaseReference = database.getReference(value);
+        //databaseReference.child("default").setValue(true);
+
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 if(!dataSnapshot.exists() || !dataSnapshot.hasChildren()) {
-                    Log.d(TAG, "파이어베이스에 데이터가 없습니다.");
-                    DatabaseReference key = database.getReference(urlToHash);
-                    key.setValue(false);
-                    Toast.makeText(ImageOne.this, "DB에 저장되었습니다.1", Toast.LENGTH_SHORT).show();
+                    
+                    //DatabaseReference key = database.getReference(urlToHash);
+                    //key.setValue(false);
+                    databaseReference.child(urlToHash).setValue(false);
+                    Log.d(TAG, "DB에 데이터가 아예 없음. 업로드 완료");
                     linkAndHeart.setHeart(false);
                 }
                 else {
@@ -140,10 +148,10 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
 
                     // 반복문이 끝난 후 데이터 존재 여부 확인
                     if (!imageExists) {
-                        Log.d(TAG, "해당 이미지가 존재하지 않습니다.");
-                        DatabaseReference key = database.getReference().child(urlToHash);
-                        key.setValue(false);
-                        Toast.makeText(ImageOne.this, "DB에 저장되었습니다.2", Toast.LENGTH_SHORT).show();
+                        databaseReference.child(urlToHash).setValue(false);
+                        //DatabaseReference key = database.getReference().child(urlToHash);
+                        //key.setValue(false);
+                        Log.d(TAG, "DB에 존재하지 않음. 저장 완료");
                         linkAndHeart.setHeart(false);
                     }
                 }
@@ -164,10 +172,12 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                         super.onPageSelected(position);
                         selectImageUrl = imageUrls.get(position);
                         String hashedUrl = getHash(selectImageUrl);
+                        linkAndHeart.setImageUrl(hashedUrl);
                         //String refImageUrl = extractReferencePath(selectImageUrl);
                         //Log.d(TAG, "참조 경로 : " + refImageUrl);
 
-                        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference().child(hashedUrl);
+                        DatabaseReference databaseReference1 = databaseReference.child(hashedUrl);
+                        //DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference().child(hashedUrl);
                         databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -185,16 +195,18 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                                                 adapter.notifyItemChanged(position);
                                             }
                                         }else {  // 이미지의 해시값이 없을 때
-                                            DatabaseReference key = database.getReference(hashedUrl);
-                                            key.setValue(false);
+                                            //DatabaseReference key = database.getReference(hashedUrl);
+                                            //key.setValue(false);
+                                            databaseReference1.setValue(false);
                                             Log.d(TAG, "이미지의 해시 값 존재 X, DB에 업로드 완료");
                                             linkAndHeart.setHeart(false); // 기본값
                                             adapter.notifyItemChanged(position);
                                         }
                                     }
                                 }else { // 파이어베이스에 데이터가 아예 없을 때, 데이터베이스에 새로 올리는 코드 작성
-                                    DatabaseReference key = database.getReference(hashedUrl);
-                                    key.setValue(false);
+                                    //DatabaseReference key = database.getReference(hashedUrl);
+                                    databaseReference1.setValue(false);
+                                    //key.setValue(false);
                                     Log.d(TAG, "DB에 아무런 데이터가 없음, DB에 업로드 완료");
                                     linkAndHeart.setHeart(false); // 기본값
                                     adapter.notifyItemChanged(position);

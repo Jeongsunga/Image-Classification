@@ -6,6 +6,7 @@ package com.example.picutre.ui.activity;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -78,6 +79,16 @@ public class FirebaseStorage_images extends AppCompatActivity {
         foldername.setText(folderName);
         imagecount.setText(String.valueOf(imageCount));
         loadImages(folderName);
+
+        // SharedPreferences에 데이터 저장 (FirebaseStorage_images와 imageSliderAdapter에서 각각 저장 가능)
+        SharedPreferences sharedPreferences = getSharedPreferences("folderName", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("foldername", folderName);
+        editor.apply();
+
+//        Intent intent1 = new Intent(FirebaseStorage_images.this, ImageOne.class);
+//        intent1.putExtra("folderName", folderName);
+//        startActivity(intent1);
 
         // SwipeRefreshLayout의 리스너 설정
 //        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

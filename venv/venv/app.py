@@ -167,7 +167,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://192.168.1.68:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://192.168.35.8:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -188,7 +188,7 @@ def image_metadata():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://192.168.35.8:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -256,7 +256,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://192.168.35.8:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -281,7 +281,7 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://192.168.1.68:5000/images"
+        base_url = "http://192.168.35.8:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         # 결과 반환
@@ -305,7 +305,7 @@ def send_heart():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://192.168.35.8:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -349,7 +349,7 @@ def update_favorite():
     #image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://192.168.1.68:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://192.168.35.8:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
     image_path = image_path.strip('"')
     image_path = os.path.normpath(image_path)
 

@@ -1,6 +1,6 @@
 package com.example.picutre.ui.adapter;
 // 사용자가 인앱갤러리에서 폴더를 하나 선택하면
-// gridView에 사진을 3장씩 보이게 하는 코드
+// gridView에 사진을 보이게 하는 코드
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 

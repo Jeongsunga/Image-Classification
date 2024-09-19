@@ -11,16 +11,13 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
@@ -32,8 +29,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.example.picutre.constants.BaseURL;
-import com.example.picutre.network.interfaces.ApiService;
-import com.example.picutre.network.interfaces.ImageDeleteService;
 import com.example.picutre.network.retrofit.RetrofitClient;
 import com.example.picutre.ui.adapter.ImageAdapter;
 import com.example.picutre.R;
@@ -52,7 +47,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FirebaseStorage_images extends AppCompatActivity {
     private GridView gridView;

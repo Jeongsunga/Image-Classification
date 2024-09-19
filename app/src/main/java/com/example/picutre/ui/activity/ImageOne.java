@@ -419,18 +419,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
 
     // 이미지 URL을 Base64로 변환
     public String getHash(@NonNull String input) {
-//        try {
-//            MessageDigest digest = MessageDigest.getInstance("MD5");
-//            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-//            StringBuilder hexString = new StringBuilder();
-//            for (byte b : hash) {
-//                hexString.append(String.format("%02x", b));
-//            }
-//            return hexString.toString();
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
         return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }
 }

@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -100,15 +101,13 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         selectImageUrl = intent.getStringExtra("selectImageUrl");
         Log.d(TAG, "해시 처리 하기 전에 이미지 링크: " + selectImageUrl);
 
-        // 파이어베이스 리얼타임 스토리지에는 특수문자가 저장되지 않아, 이미지 링크를 해시값으로 변환해 저장
-        // MD5는 동일한 입력값이면 출력값도 동일하기 때문에 스토리지에서 찾을 수 있음.
         String urlToHash = getHash(selectImageUrl);
         Log.d(TAG, "해시 처리 후의 링크: " + urlToHash);
 
 
         SharedPreferences sharedPreferences = getSharedPreferences("folderName", MODE_PRIVATE);
         String value = sharedPreferences.getString("foldername", "default");
-        Log.d(TAG, "sharedPreferences: " + value);
+        //Log.d(TAG, "sharedPreferences: " + value);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference(value);
@@ -418,19 +417,20 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         });
     }
 
-    // 이미지 URL을 해시로 변환 (MD5 사용 예시)
+    // 이미지 URL을 Base64로 변환
     public String getHash(@NonNull String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                hexString.append(String.format("%02x", b));
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+//        try {
+//            MessageDigest digest = MessageDigest.getInstance("MD5");
+//            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+//            StringBuilder hexString = new StringBuilder();
+//            for (byte b : hash) {
+//                hexString.append(String.format("%02x", b));
+//            }
+//            return hexString.toString();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+        return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }
 }

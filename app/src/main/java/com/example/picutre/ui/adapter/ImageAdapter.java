@@ -7,16 +7,23 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+
 import com.bumptech.glide.RequestManager;
 import com.example.picutre.R;
+import com.example.picutre.ui.activity.FirebaseStorage_images;
 import com.example.picutre.ui.activity.ImageOne;
 
 import java.util.ArrayList;
@@ -28,6 +35,9 @@ public class ImageAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private RequestManager glideRequestManager;
     private static final int DELETE_PHOTO_REQUEST_CODE = 1001;  // 동일한 값 사용
+//    private boolean multiSelect = false;
+//    private List<String> imageUrls;
+//    private List<String> selectedImages = new ArrayList<>(); // 선택된 이미지 리스트
 
     public ImageAdapter(Context context, List<String> imagePaths, RequestManager glideRequestManager) {
         this.context = context;
@@ -75,17 +85,30 @@ public class ImageAdapter extends BaseAdapter {
             ((Activity) context).startActivityForResult(intent, DELETE_PHOTO_REQUEST_CODE);
         });
 
-        imageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
+//        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
+//                //startMultiSelectMode();
+//                return true;
+//            }
+//        });
 
+        // 선택된 이미지를 회색으로 표시
+//        if (selectedImages.contains(imagePaths)) {
+//            convertView.setBackgroundColor(Color.LTGRAY); // 선택된 이미지 배경색 변경
+//        } else {
+//            convertView.setBackgroundColor(Color.TRANSPARENT); // 기본 배경색
+//        }
 
         return convertView;
     }
+
+    // 선택된 이미지 설정
+//    public void setSelectedImages(List<String> selectedImages) {
+//        this.selectedImages = selectedImages;
+//        notifyDataSetChanged(); // 데이터 변경 알림
+//    }
 
     // 새로운 데이터로 업데이트하는 메서드
     public void updateData(List<String> newImageLinks) {

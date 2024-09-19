@@ -137,9 +137,8 @@ public class MainActivity extends AppCompatActivity {
                     ResponseData myResponse = response.body();
                     Log.d("MainActivity", "Success123456: " + myResponse.getMessage());
                 } else {
-                    Log.d("MainActivity", "Request failed123456: " + response.code());
+                    Log.d("MainActivity", "Request failed: " + response.code());
                 }
-
             }
 
             @Override

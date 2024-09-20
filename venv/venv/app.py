@@ -9,8 +9,10 @@ from PIL.ExifTags import TAGS
 import piexif
 import sys
 sys.path.append('./python/')
-import yunet_face
-import Example
+
+import face
+import eyes
+
 import pic_date
 import period
 import location
@@ -96,9 +98,11 @@ def upload_file():
         os.makedirs(resultFolderPath, exist_ok=True)
 
         if filterNumber == 1: # 얼굴
-            yunet_face.detect_face(extract_to_folder)
+
+            face.detect_face(extract_to_folder)
         elif filterNumber == 2: # 얼굴&눈
-            Example.detect_eyes(extract_to_folder)
+            eyes.detect_eyes(extract_to_folder)
+
         elif filterNumber == 3:
             if periodNumber == 1: # 하루
                 pic_date.sortDate(innoDate, folderName, extract_to_folder)
@@ -281,7 +285,9 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
+
         base_url = "http://172.21.210.201:5000/images"
+
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         # 결과 반환

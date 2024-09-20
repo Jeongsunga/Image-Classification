@@ -7,7 +7,9 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+
 import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,10 +22,12 @@ import androidx.core.view.WindowInsetsCompat;
 import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
+
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -63,6 +67,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
     private static final int DELETE_PHOTO_REQUEST_CODE = 1001;
     private List<String> favoriteImageUrls = new ArrayList<>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +78,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
         glideRequestManager = Glide.with(this);
         imagecount = findViewById(R.id.imageCount);
         foldername = findViewById(R.id.foldername);
+
         imageButton = findViewById(R.id.likely);
+
 
         Retrofit retrofit = RetrofitClient.getClient(BASE_URL);
         imageApi = retrofit.create(ImageApi.class);

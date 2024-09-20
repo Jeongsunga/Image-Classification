@@ -57,6 +57,7 @@ public class inAppGallery extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recylcerview);
         imageButton = findViewById(R.id.btn_menu);
+        imageButton.setVisibility(View.INVISIBLE);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         storageItemList = new ArrayList<>();

@@ -7,10 +7,12 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -18,8 +20,10 @@ import androidx.core.view.WindowInsetsCompat;
 import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -58,12 +62,6 @@ public class FirebaseStorage_images extends AppCompatActivity {
     private ImageApi imageApi;
     private static final int DELETE_PHOTO_REQUEST_CODE = 1001;
     private List<String> favoriteImageUrls = new ArrayList<>();
-    private boolean multiSelect = false; // 멀티 선택 모드인지 여부
-
-
-    private List<String> imageUrls; // 이미지 URL 리스트
-    private List<String> selectedImages = new ArrayList<>(); // 선택된 이미지 리스트
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +73,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
         glideRequestManager = Glide.with(this);
         imagecount = findViewById(R.id.imageCount);
         foldername = findViewById(R.id.foldername);
-        imageButton = findViewById(R.id.btn_menu);
+        imageButton = findViewById(R.id.likely);
 
         Retrofit retrofit = RetrofitClient.getClient(BASE_URL);
         imageApi = retrofit.create(ImageApi.class);
@@ -98,33 +96,21 @@ public class FirebaseStorage_images extends AppCompatActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popupMenu = new PopupMenu(FirebaseStorage_images.this, imageButton);
-                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+                Drawable currentDrawable = imageButton.getDrawable();
+                Drawable expectedDrawable = ContextCompat.getDrawable(FirebaseStorage_images.this, R.drawable.heart);
 
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        if(item.getItemId() == R.id.like){ // 좋아요 누른 사진만 보이게 함
-                            firebaseHandler(folderName, 3);
-                        }else {
-                            firebaseHandler(folderName, 4);
-                        }
-                        return true;
-                    }
-                });
-                popupMenu.show();
+                // 이미지 버튼의 상태가 heart에서 누르면 즐겨찾기 목록이 나오게 한다.
+                if (currentDrawable.getConstantState() != null && currentDrawable.getConstantState().equals(expectedDrawable.getConstantState())) {
+                    imageButton.setImageResource(R.drawable.fullheart);
+                    firebaseHandler(folderName, 3);
+                }
+                // 이미지 버튼의 상태가 fullheart에서 누르면 원래 목록이 나오게 한다.
+                else {
+                    imageButton.setImageResource(R.drawable.heart);
+                    firebaseHandler(folderName, 4);
+                }
             }
         });
-
-        // 그리드뷰 아이템 롱클릭 리스너 설정 (멀티 선택 모드 진입)
-//        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-//            if (!multiSelect) {
-//                multiSelect = true;
-//                startSupportActionMode(actionModeCallbacks);
-//                toggleSelection(position);
-//            }
-//            return true;
-//        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -200,6 +186,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 }else {
                     if(num == 3){
                         // 좋아요 누른 사진만 보이게 하는 구문 실행
+                        favoriteImageUrls.clear();
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             //반복문으로 데이터 리스트 추출
                             if(dataSnapshot.getValue(Boolean.class)) {
@@ -226,88 +213,4 @@ public class FirebaseStorage_images extends AppCompatActivity {
         byte[] decodedBytes = Base64.decode(encodedUrl, Base64.NO_WRAP);
         return new String(decodedBytes, StandardCharsets.UTF_8);
     }
-
-    // 선택된 아이템 처리
-//    private void toggleSelection(int position) {
-//        String selectedImage = imageUrls.get(position);
-//        if (selectedImages.contains(selectedImage)) {
-//            selectedImages.remove(selectedImage);
-//        } else {
-//            selectedImages.add(selectedImage);
-//        }
-//        imageAdapter.setSelectedImages(selectedImages); // 어댑터에 선택된 이미지 업데이트
-//    }
-//
-//    // ActionMode 콜백
-//    private final ActionMode.Callback actionModeCallbacks = new ActionMode.Callback() {
-//        @Override
-//        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//            mode.getMenuInflater().inflate(R.menu.popup_menu, menu);
-//            imageButton.setVisibility(View.INVISIBLE);
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//            return false;
-//        }
-//
-//        @Override
-//        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//            if (item.getItemId() == R.id.delete) {
-//                // 선택된 이미지 삭제
-//                imageUrls.removeAll(selectedImages);
-//                //imageAdapter.notifyDataSetChanged();
-//                deleteSelectedImagesFromServer(selectedImages);
-//                //imageAdapter.updateData(imageUrls);
-//                mode.finish();
-//                return true;
-//            } else if(item.getItemId() == R.id.download) {
-//                Log.d(TAG, "이미지들 다운받기");
-//                return true;
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        public void onDestroyActionMode(ActionMode mode) {
-//            multiSelect = false;
-//            selectedImages.clear();
-//            imageAdapter.setSelectedImages(selectedImages); // 선택 해제
-//            imageAdapter.notifyDataSetChanged();
-//        }
-//    };
-//
-//    // 선택된 이미지를 서버로 삭제 요청
-//    private void deleteSelectedImagesFromServer(List<String> selectedImages) {
-//        // Retrofit 또는 HttpURLConnection을 사용하여 서버로 삭제 요청을 보냅니다.
-//        // 예: Retrofit을 사용하는 경우
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("https://your-server-url.com")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        ImageDeleteService service = retrofit.create(ImageDeleteService.class);
-//        Call<Void> call = service.deleteImages(selectedImages);
-//
-//        call.enqueue(new Callback<Void>() {
-//            @Override
-//            public void onResponse(Call<Void> call, Response<Void> response) {
-//                if (response.isSuccessful()) {
-//                    // 서버에서 삭제가 성공하면 클라이언트에서 그리드뷰를 업데이트
-//                    imageUrls.removeAll(selectedImages);
-//                    imageAdapter.notifyDataSetChanged();
-//                } else {
-//                    // 서버 오류 처리
-//                    Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Void> call, Throwable t) {
-//                // 네트워크 오류 처리
-//                Toast.makeText(FirebaseStorage_images.this, "서버 연결 실패", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
 }

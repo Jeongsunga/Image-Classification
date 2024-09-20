@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -40,6 +39,8 @@ import com.example.picutre.ui.adapter.ImageSliderAdapter;
 import com.example.picutre.R;
 import com.example.picutre.network.interfaces.DeleteImageApi;
 import com.example.picutre.network.interfaces.DownloadImage;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,15 +51,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -99,27 +95,18 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         imageUrls = intent.getStringArrayListExtra("imagePaths"); // 이미지 URL 리스트 받기
         initialPosition = intent.getIntExtra("position", 0); // 처음 표시할 이미지의 위치
         selectImageUrl = intent.getStringExtra("selectImageUrl");
-        Log.d(TAG, "해시 처리 하기 전에 이미지 링크: " + selectImageUrl);
-
         String urlToHash = getHash(selectImageUrl);
-        Log.d(TAG, "해시 처리 후의 링크: " + urlToHash);
-
 
         SharedPreferences sharedPreferences = getSharedPreferences("folderName", MODE_PRIVATE);
         String value = sharedPreferences.getString("foldername", "default");
-        //Log.d(TAG, "sharedPreferences: " + value);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference(value);
-        //databaseReference.child("default").setValue(true);
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists() || !dataSnapshot.hasChildren()) {
-                    
-                    //DatabaseReference key = database.getReference(urlToHash);
-                    //key.setValue(false);
                     databaseReference.child(urlToHash).setValue(false);
                     Log.d(TAG, "DB에 데이터가 아예 없음. 업로드 완료");
                     linkAndHeart.setHeart(false);
@@ -128,7 +115,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                     boolean imageExists = false;  // 데이터 존재 여부를 추적하기 위한 변수
 
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {  //반복문으로 데이터 리스트 추출
-
                         if(snapshot.getKey().equals(urlToHash)) {
                             imageExists = true;  // 데이터가 존재하는 경우
 
@@ -136,20 +122,16 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                                 Log.d(TAG, "해당 이미지가 존재하며, true입니다.");
                                 linkAndHeart.setHeart(true);
                                 break;
-                            }
-                            else {
+                            }else {
                                 Log.d(TAG, "해당 이미지가 존재하며, false입니다.");
                                 linkAndHeart.setHeart(false);
                                 break;
                             }
                         }
                     }
-
                     // 반복문이 끝난 후 데이터 존재 여부 확인
                     if (!imageExists) {
                         databaseReference.child(urlToHash).setValue(false);
-                        //DatabaseReference key = database.getReference().child(urlToHash);
-                        //key.setValue(false);
                         Log.d(TAG, "DB에 존재하지 않음. 저장 완료");
                         linkAndHeart.setHeart(false);
                     }
@@ -172,11 +154,8 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                         selectImageUrl = imageUrls.get(position);
                         String hashedUrl = getHash(selectImageUrl);
                         linkAndHeart.setImageUrl(hashedUrl);
-                        //String refImageUrl = extractReferencePath(selectImageUrl);
-                        //Log.d(TAG, "참조 경로 : " + refImageUrl);
 
                         DatabaseReference databaseReference1 = databaseReference.child(hashedUrl);
-                        //DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference().child(hashedUrl);
                         databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -194,8 +173,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                                                 adapter.notifyItemChanged(position);
                                             }
                                         }else {  // 이미지의 해시값이 없을 때
-                                            //DatabaseReference key = database.getReference(hashedUrl);
-                                            //key.setValue(false);
                                             databaseReference1.setValue(false);
                                             Log.d(TAG, "이미지의 해시 값 존재 X, DB에 업로드 완료");
                                             linkAndHeart.setHeart(false); // 기본값
@@ -203,9 +180,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                                         }
                                     }
                                 }else { // 파이어베이스에 데이터가 아예 없을 때, 데이터베이스에 새로 올리는 코드 작성
-                                    //DatabaseReference key = database.getReference(hashedUrl);
                                     databaseReference1.setValue(false);
-                                    //key.setValue(false);
                                     Log.d(TAG, "DB에 아무런 데이터가 없음, DB에 업로드 완료");
                                     linkAndHeart.setHeart(false); // 기본값
                                     adapter.notifyItemChanged(position);
@@ -233,22 +208,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             return insets;
         });
     }
-
-    /*@Nullable
-    public static String extractReferencePath(String url) {
-        try {
-            // URL에서 파일 경로 부분 추출
-            String[] splitUrl = url.split("/o/");
-            String pathWithParams = splitUrl[1];
-            // 쿼리 파라미터 제거
-            String encodedPath = pathWithParams.split("\\?")[0];
-            // URL 디코딩 (ex: %2F -> /)
-            return URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.name());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; // 예외 처리
-        }
-    }*/
 
     @Override
     public void onHeartClick(int position) {
@@ -399,6 +358,8 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                     imageLinks = deleteResponse.getImageLinks();
                     Log.d(TAG, "성공여부: " + success + " 삭제 후 폴더 내의 사진 장수: " + imageCount + " 이미지 링크 리스트: " + imageLinks);
 
+                    deleteFirebase(imageUrl);
+
                     // 업데이트 된 정보를 폰에도 동기화해야 함(사진 장수, 이미지)
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("imageCount", imageCount);
@@ -420,5 +381,23 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     // 이미지 URL을 Base64로 변환
     public String getHash(@NonNull String input) {
         return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+    }
+
+    public void deleteFirebase(String imageUrl) {
+        SharedPreferences sharedPreferences = getSharedPreferences("folderName", MODE_PRIVATE);
+        String value = sharedPreferences.getString("foldername", "default");
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(value).child(getHash(imageUrl));
+        databaseReference.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "파이어베이스 삭제 성공");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "파이어베이스 삭제 실패");
+            }
+        });
     }
 }

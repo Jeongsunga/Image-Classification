@@ -10,5 +10,8 @@
     <item
         android:id="@+id/like"
         android:title="즐겨찾기"/>
+    <item
+        android:id="@+id/reset"
+        android:title="기존화면 보기"/>
 
 </menu>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="inAppGallery">
+    tools:context=".ui.activity.inAppGallery">
 
     <ImageButton
         android:id="@+id/btn_menu"
@@ -30,18 +30,4 @@
         android:layout_height="match_parent"
         android:visibility="visible"
         />
-
-    <TextView
-        android:id="@+id/noData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="데이터가 없습니다."
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_gravity="center"
-        android:layout_marginTop="100dp">
-    </TextView>
-
-
 </LinearLayout>

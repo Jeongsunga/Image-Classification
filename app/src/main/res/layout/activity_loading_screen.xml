@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoadingScreen"
+    tools:context=".ui.activity.LoadingScreen"
     android:orientation="vertical">
 
     <TextView
@@ -19,29 +19,10 @@
         android:layout_marginTop="150dp"/>
 
     <ProgressBar
-        android:id="@+id/progressbar"
+        android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"/>
-
-    <TextView
-        android:id="@+id/tv_classify"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="사진 분류가 완료되었습니다."
-        android:gravity="center"
         android:layout_marginTop="70dp"
-        android:visibility="invisible"
-        android:textSize="15dp"/>
-
-    <TextView
-        android:id="@+id/tv_upload"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DB 업로드 완료되었습니다."
-        android:visibility="invisible"
-        android:gravity="center"
-        android:layout_marginTop="30dp"
-        android:textSize="15dp"/>
+        android:indeterminate="true"/>
 
 </LinearLayout>

@@ -14,23 +14,19 @@ def detect_eyes(extractFolder):
         return EAR
 
     # EAR 임계값 (이 값보다 낮으면 눈이 감겨있다고 판단)
-    EAR_THRESHOLD = 0.225
+    EAR_THRESHOLD = 0.23
 
     # dlib 얼굴 탐지기와 랜드마크 예측기 불러오기
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor('Resource/shape_predictor_81_face_landmarks.dat')
+    predictor = dlib.shape_predictor('./python/Resource/shape_predictor_81_face_landmarks.dat')
 
     # 경로 설정
-    source_folder = '../ClassifyResult/Face_Detection_' + extractFolder
+    source_folder = './ClassifyResult/Face_Detection_' + extractFolder
     file_name = "Eyes_Detection_" + extractFolder # Eye_Detection_detectFace
     file_name2 = "No_Eyes_Detection_" + extractFolder
-    resultFolderPath = '../ClassifyResult/'
+    resultFolderPath = './ClassifyResult/'
     result_eyes_folder = resultFolderPath + file_name
     result_no_eyes_folder = os.path.join(resultFolderPath, file_name2)
-
-    # 결과 폴더가 없다면 생성
-    os.makedirs(result_eyes_folder, exist_ok=True)
-    os.makedirs(result_no_eyes_folder, exist_ok=True)
 
     # 눈 랜드마크 좌표 (68포인트 모델 기준)
     LEFT_EYE_POINTS = list(range(36, 42))
@@ -52,6 +48,7 @@ def detect_eyes(extractFolder):
 
             # 얼굴이 감지되지 않으면 스킵
             if len(dets) == 0:
+                os.makedirs(result_no_eyes_folder, exist_ok=True)
                 shutil.move(file_path, os.path.join(result_no_eyes_folder, filename))
                 print(f"얼굴이 감지되지 않았습니다: {file_path}")
                 continue
@@ -78,10 +75,13 @@ def detect_eyes(extractFolder):
 
             # 눈 상태에 따라 이미지를 이동
             if eyes_open:
+                os.makedirs(result_eyes_folder, exist_ok=True)
                 shutil.move(file_path, os.path.join(result_eyes_folder, filename))
                 print(f"눈이 떠 있음: {filename} -> {result_eyes_folder}")
             else:
+                os.makedirs(result_no_eyes_folder, exist_ok=True)
                 shutil.move(file_path, os.path.join(result_no_eyes_folder, filename))
                 print(f"눈이 감겨 있음: {filename} -> {result_no_eyes_folder}")
 
+    os.rmdir(source_folder)
     print("눈 상태 검사 완료!")

@@ -50,9 +50,9 @@ public class LoadingScreen extends AppCompatActivity {
     String baseURL = BaseURL.BASE_URL;
 
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
-            .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
-            .writeTimeout(60, TimeUnit.SECONDS)   // 쓰기 타임아웃 설정
-            .readTimeout(60, TimeUnit.SECONDS)    // 읽기 타임아웃 설정
+            .connectTimeout(20, TimeUnit.SECONDS) // 연결 타임아웃 설정
+            .writeTimeout(60, TimeUnit.SECONDS)   // 데이터 보내기 타임아웃 설정
+            .readTimeout(180, TimeUnit.SECONDS)    // 데이터 받기 타임아웃 설정
             .build();
 
     Retrofit retrofit = new Retrofit.Builder()
@@ -180,6 +180,18 @@ public class LoadingScreen extends AppCompatActivity {
                     Log.d("ZipUpload", "File uploaded successfully123123 : " + response.message()); // 200
                 } else {
                     Log.d("ZipUpload", "File upload failed123123: " + response.message());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
+                    builder.setMessage("분류 과정에 문제가 생겨 중단되었습니다.");
+                    builder.setIcon(R.drawable.ic_launcher_foreground);
+                    builder.setCancelable(false); // 뒤로가기 버튼으로 다이얼로그 종료 못함
+                    builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Intent intent = new Intent(LoadingScreen.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
                 }
 
             }
@@ -187,6 +199,18 @@ public class LoadingScreen extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e("ZipUpload", "Error123123: " + t.getMessage());
+                AlertDialog.Builder builder = new AlertDialog.Builder(LoadingScreen.this);
+                builder.setMessage("분류 과정에 문제가 생겨 중단되었습니다.");
+                builder.setIcon(R.drawable.ic_launcher_foreground);
+                builder.setCancelable(false); // 뒤로가기 버튼으로 다이얼로그 종료 못함
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Intent intent = new Intent(LoadingScreen.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }

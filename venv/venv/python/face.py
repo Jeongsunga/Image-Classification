@@ -9,19 +9,12 @@ from datetime import datetime
 
 def detect_face(extractFolder):
     # Define paths
-    source_folder = '../' + extractFolder + '/' + extractFolder
+    source_folder = './' + extractFolder + '/' + extractFolder
     file_name = "Face_Detection_" + extractFolder # Face_Detection_detectFace
     file_name2 = "No_Face_Detection_" + extractFolder
-    resultFolderPath = '../ClassifyResult/'
-    face_folder = resultFolderPath + file_name #../ClassifyResult/Face_Detection
+    resultFolderPath = './ClassifyResult/'
+    face_folder = resultFolderPath + file_name #./ClassifyResult/Face_Detection
     noface_folder = os.path.join(resultFolderPath, file_name2)
-
-    # Create Face and NoFace directories if they don't exist
-    if not os.path.exists(face_folder):
-        os.mkdir(face_folder)
-
-    if not os.path.exists(noface_folder):
-        os.mkdir(noface_folder)
 
     now = datetime.now()
     print(now)
@@ -45,14 +38,20 @@ def detect_face(extractFolder):
 
             if faces:  # If at least one face is detected
                 # Move the image to the Face folder
+                if not os.path.exists(face_folder):
+                    os.mkdir(face_folder)
                 shutil.move(image_path, os.path.join(face_folder, image_file))
                 print(f"Face detected in {image_file}. Moved to Face folder.")
             else:
                 # No face detected (although this case is unlikely with DeepFace)
+                if not os.path.exists(noface_folder):
+                    os.mkdir(noface_folder)
                 shutil.move(image_path, os.path.join(noface_folder, image_file))
                 print(f"No face detected in {image_file}. Moved to NoFace folder.")
 
         except Exception as e:
             # If an error occurs (e.g., no face detected, corrupt image), move to NoFace folder
+            if not os.path.exists(noface_folder):
+                os.mkdir(noface_folder)
             shutil.move(image_path, os.path.join(noface_folder, image_file))
             print(f"Error processing {image_file}: {e}. Moved to NoFace folder.")

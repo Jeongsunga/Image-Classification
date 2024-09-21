@@ -9,10 +9,8 @@ from PIL.ExifTags import TAGS
 import piexif
 import sys
 sys.path.append('./python/')
-
 import face
 import eyes
-
 import pic_date
 import period
 import location
@@ -62,7 +60,7 @@ def receiveFilterNumberDate():
     return jsonify({"status": "success", "message": "Data received successfully"})
 
 
-# 앱에서 분류할 압축 파일을 받는 라우터
+# 앱에서 분류할 압축 파일을 받고 분류까지 하는 라우터
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -98,11 +96,10 @@ def upload_file():
         os.makedirs(resultFolderPath, exist_ok=True)
 
         if filterNumber == 1: # 얼굴
-
             face.detect_face(extract_to_folder)
         elif filterNumber == 2: # 얼굴&눈
+            face.detect_face(extract_to_folder)
             eyes.detect_eyes(extract_to_folder)
-
         elif filterNumber == 3:
             if periodNumber == 1: # 하루
                 pic_date.sortDate(innoDate, folderName, extract_to_folder)
@@ -122,6 +119,10 @@ def upload_file():
 
         # A 폴더를 B 폴더 안으로 이동, 압축 푼 폴더들을 한 곳에 모아놓기 위함
         shutil.move(source_dir, destination_dir)
+
+        # zip 파일 삭제
+        # remove_file = os.path.join(current_dir, 'uploads', folderName + '.zip')
+        # os.remove(remove_file)
 
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
 

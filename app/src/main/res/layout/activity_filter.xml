@@ -65,6 +65,7 @@
         android:textStyle="bold" />
 
         <TextView
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="* 얼굴이 가린 사진도 폴더 생성 됩니다."
@@ -79,10 +80,10 @@
         android:id="@+id/chbox_eyeclosed"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_marginLeft="50dp"
-        android:text="눈 감은 사진 / 눈 뜬 사진"
+        android:layout_marginLeft="40dp"
+        android:text="눈을 뜬 사진"
         android:textColor="#000000"
-        android:textSize="12sp"
+        android:textSize="15sp"
         android:textStyle="bold"/>
 
 
@@ -117,9 +118,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:text="눈 감은 사진"
+                android:text="얼굴 보이는 사진"
                 android:textColor="#000000"
-                android:textSize="10sp" />
+                android:textSize="8.5sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -289,7 +290,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="Seoul"
+                android:text="서울"
 
                 android:textSize="10sp" />
 
@@ -318,7 +319,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="Busan"
+                android:text="부산"
 
                 android:textSize="10sp" />
 
@@ -347,7 +348,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="Milyang"
+                android:text="밀양시"
 
                 android:textSize="10sp" />
 

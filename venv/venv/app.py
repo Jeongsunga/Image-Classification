@@ -172,7 +172,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://172.21.210.201:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://172.21.248.210:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -193,7 +193,7 @@ def image_metadata():
     print(f"Converted image path: {image_url}")
 
     # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+    image_path = image_url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
     # 불필요한 따옴표 제거
     image_path = image_path.strip('"')
@@ -261,7 +261,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://172.21.210.201:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -287,7 +287,7 @@ def delete_image():
         folder_name = os.path.basename(folder_path)
 
 
-        base_url = "http://172.21.210.201:5000/images"
+        base_url = "http://172.21.248.210:5000/images"
 
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
@@ -302,6 +302,37 @@ def delete_image():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+# 사용자가 삭제하길 원하는 폴더의 이름을 받고 삭제 수행 &
+# 서버에 남은 폴더 목록을 반환하는 라우터
+@app.route("/delete-folder", methods=['POST'])
+def delete_folder():
+    data = request.json
+    delete_folder_path = "C:/Image-Classification-Application-test/venv/venv/ClassifyResult/" + data
+    print(delete_folder_path)
+
+    if os.path.exists(delete_folder_path):
+        shutil.rmtree(delete_folder_path)
+        
+        base_path = './ClassifyResult'
+        result = []
+
+        for folder_name in os.listdir(base_path):
+            folder_path = os.path.join(base_path, folder_name)
+        
+            if os.path.isdir(folder_path):  # Check if it is a directory
+                photos = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+                photo_count = len(photos)
+                first_photo_path = os.path.join(folder_name, photos[0]) if photo_count > 0 else None
+            
+                result.append({
+                    'folder_name': folder_name,
+                    'photo_count': photo_count,
+                    'first_photo': first_photo_path  # Relative path to the first photo
+                })
+        return jsonify(result)
+
+    else:
+        return jsonify({"status": "error", "message": "No Existes Folder"}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

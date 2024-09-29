@@ -20,9 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.picutre.R;
 import com.example.picutre.constants.BaseURL;
-import com.example.picutre.network.interfaces.ApiService;
 import com.example.picutre.network.interfaces.SendZip;
-import com.example.picutre.network.retrofit.RetrofitClient;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +48,7 @@ public class LoadingScreen extends AppCompatActivity {
     String baseURL = BaseURL.BASE_URL;
 
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS) // 연결 타임아웃 설정
+            .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
             .writeTimeout(60, TimeUnit.SECONDS)   // 데이터 보내기 타임아웃 설정
             .readTimeout(180, TimeUnit.SECONDS)    // 데이터 받기 타임아웃 설정
             .build();
@@ -128,7 +126,7 @@ public class LoadingScreen extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                Intent intent = new Intent(LoadingScreen.this, inAppGallery.class);
+                Intent intent = new Intent(LoadingScreen.this, InAppGallery.class);
                 startActivity(intent);
             }
         });

@@ -303,13 +303,13 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 t.printStackTrace();
                 new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show());
-                Log.d(TAG, "응답이 오지 않았습니다.");
+                Log.d(TAG, "응답 실패: " + t.getMessage());
             }
         });
     }
 
     // 이미지 URL에서 폴더 이름 추출 메서드
-    private String getFolderNameFromUrl(String url) {
+    public String getFolderNameFromUrl(String url) {
         // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
         Uri uri = Uri.parse(url);
         List<String> pathSegments = uri.getPathSegments();
@@ -318,7 +318,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     }
 
     // 이미지 URL에서 파일 이름 추출 메서드
-    private String getImageNameFromUrl(String url) {
+    public String getImageNameFromUrl(String url) {
         // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
         Uri uri = Uri.parse(url);
         return uri.getLastPathSegment(); // "20240413_152945.jpg" 부분을 추출

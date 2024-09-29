@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendDataToServer(); //앱과 서버가 연결되어 있는지 확인할 수 있는 간단한 코드
-                Intent intent = new Intent(MainActivity.this, inAppGallery.class);
+                Intent intent = new Intent(MainActivity.this, InAppGallery.class);
                 startActivity(intent);
             }
         });

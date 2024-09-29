@@ -252,7 +252,7 @@ def convert_size(size_bytes):
     s = round(size_bytes / p, 2)
     return f"{s} {size_name[i]}"
 
-# 사용자가 삭제하길 원하는 이미지의 링크를 받고 삭제 수행 후
+# 사용자가 삭제하길 원하는 이미지의 링크(한 장)를 받고 삭제 수행 후
 # 폴더 내의 이미지 장수, 업데이트된 이미지 링크를 반환하는 라우터
 @app.route("/delete-image", methods=['POST'])
 def delete_image():
@@ -286,7 +286,6 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-
         base_url = "http://172.21.248.210:5000/images"
 
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
@@ -312,27 +311,51 @@ def delete_folder():
 
     if os.path.exists(delete_folder_path):
         shutil.rmtree(delete_folder_path)
-        
-        base_path = './ClassifyResult'
-        result = []
-
-        for folder_name in os.listdir(base_path):
-            folder_path = os.path.join(base_path, folder_name)
-        
-            if os.path.isdir(folder_path):  # Check if it is a directory
-                photos = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-                photo_count = len(photos)
-                first_photo_path = os.path.join(folder_name, photos[0]) if photo_count > 0 else None
-            
-                result.append({
-                    'folder_name': folder_name,
-                    'photo_count': photo_count,
-                    'first_photo': first_photo_path  # Relative path to the first photo
-                })
-        return jsonify(result)
+        return jsonify({"status": "success", "message": "Data received successfully"})
 
     else:
         return jsonify({"status": "error", "message": "No Existes Folder"}), 404
+
+# 사용자가 삭제하길 원하는 이미지 리스트 링크(여러 장)를 받고 수행 &
+# 폴더에 남은 이미지 링크 리스트와 사진 장 수 반환 라우터
+@app.route("/delete-images", methods=['POST'])
+def delete_images(): 
+    try:
+        data = request.json
+        print(data)
+
+        for url in data:
+            if not url:
+                return jsonify({'success': False, 'error': 'No image URLs provided'}), 400
+
+            image_path = url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+            image_path = image_path.strip('"')
+            image_path = os.path.normpath(image_path)
+
+            if os.path.exists(image_path):
+                os.remove(image_path)
+                print(f'Image deleted: {image_path}')
+            else:
+                print(f'File does not exist at path: {image_path}')
+                #return jsonify({"error": "File not found"}), 404
+            
+        # 해당 폴더 내의 남아있는 이미지 개수 확인 (첫 이미지의 경로 기준)
+        folder_path = os.path.dirname(image_path)
+        image_files = [file for file in os.listdir(folder_path) if file.endswith(('jpg', 'jpeg', 'png'))]
+        image_count = len(image_files)
+        folder_name = os.path.basename(folder_path)
+
+        base_url = "http://172.21.248.210:5000/images"
+        image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
+
+        return jsonify({
+            'success': True,
+            'image_count': image_count,
+            'image_links': image_links
+        })
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

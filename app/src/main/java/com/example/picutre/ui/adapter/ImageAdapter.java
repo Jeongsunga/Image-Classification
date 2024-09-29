@@ -1,12 +1,12 @@
 package com.example.picutre.ui.adapter;
-// 사용자가 인앱갤러리에서 폴더를 하나 선택하면
-// gridView에 사진을 보이게 하는 코드
+// 사용자가 인앱갤러리에서 폴더를 하나 선택하면 gridView에 사진을 보이게 하는 코드
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +27,7 @@ public class ImageAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private RequestManager glideRequestManager;
     private static final int DELETE_PHOTO_REQUEST_CODE = 1001;  // 동일한 값 사용
+    private ArrayList<Integer> selectedItems = new ArrayList<>(); // 선택된 항목 저장
 
     public ImageAdapter(Context context, List<String> imagePaths, RequestManager glideRequestManager) {
         this.context = context;
@@ -74,6 +75,26 @@ public class ImageAdapter extends BaseAdapter {
             ((Activity) context).startActivityForResult(intent, DELETE_PHOTO_REQUEST_CODE);
         });
 
+        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (selectedItems.contains(position)) {
+                    selectedItems.remove(Integer.valueOf(position));
+                } else {
+                    selectedItems.add(position);
+                }
+                notifyDataSetChanged(); // UI 갱신
+                return true;
+            }
+        });
+
+        // 선택된 상태일 때 UI 업데이트
+        if (selectedItems.contains(position)) {
+            imageView.setColorFilter(Color.argb(150, 0, 0, 0)); // 선택된 경우 어둡게 처리
+        } else {
+            imageView.clearColorFilter();
+        }
+
         return convertView;
     }
 
@@ -86,5 +107,20 @@ public class ImageAdapter extends BaseAdapter {
             Log.d(TAG, "새로운 이미지 링크 리스트: " + imagePaths);
         }
         notifyDataSetChanged(); // 데이터 변경 알림
+    }
+
+    // 선택된 이미지들 반환
+    public ArrayList<String> getSelectedImages() {
+        ArrayList<String> selectedImages = new ArrayList<>();
+        for (int index : selectedItems) {
+            selectedImages.add(imagePaths.get(index));
+        }
+        return selectedImages;
+    }
+
+    // 선택 초기화
+    public void clearSelection() {
+        selectedItems.clear();
+        notifyDataSetChanged();
     }
 }

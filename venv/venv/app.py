@@ -121,8 +121,8 @@ def upload_file():
         shutil.move(source_dir, destination_dir)
 
         # zip 파일 삭제
-        remove_file = './uploads/' + folderName + '.zip'
-        os.remove(remove_file)
+        #remove_file = './uploads/' + folderName + '.zip'
+        #os.remove(remove_file)
 
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
 

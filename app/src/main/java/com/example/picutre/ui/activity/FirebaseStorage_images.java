@@ -69,7 +69,6 @@ public class FirebaseStorage_images extends AppCompatActivity {
     String BASE_URL = BaseURL.BASE_URL;
     private ImageApi imageApi;
     private DeleteImageList deleteImageList;
-
     private static final int DELETE_PHOTO_REQUEST_CODE = 1001;
     private List<String> favoriteImageUrls = new ArrayList<>(); // 찜하기 누른 사진들만 넣는 리스트
     List<String> imageUrls = new ArrayList<>();
@@ -260,9 +259,8 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        ArrayList<String> list = new ArrayList<>();
-                        deleteImageListRequest(folderName);
-
+                        ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
+                        deleteImageListRequest(folderName, selectedImages);
                     }
                 })
                 .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
@@ -273,15 +271,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 }).show();
     }
 
-    public void deleteImageListRequest(String folderName) {
-//        if(list == null) {
-//            ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
-//        }
-//        else {
-//            ArrayList<String> selectedImages = new ArrayList<>();
-//            selectedImages.addAll(list);
-//        }
-        ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
+    public void deleteImageListRequest(String folderName, @NonNull ArrayList<String> selectedImages) {
         if (!selectedImages.isEmpty()) {
             deleteImageList = retrofit.create(DeleteImageList.class);
             Call<DeleteResponse> call = deleteImageList.deleteImageList(selectedImages);
@@ -370,7 +360,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
         }
         Log.d(TAG, "값 확인: " + allSelectedItems);
         new AlertDialog.Builder(FirebaseStorage_images.this)
-                .setMessage("삭제하시겠습니까 저장하시겠습니까?")
+                .setMessage("삭제하시겠습니까, 저장하시겠습니까?")
                 .setPositiveButton("저장", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -388,8 +378,11 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        deleteImageListRequest(folderName);
+                        ArrayList<String> allSelectedImages = new ArrayList<>();
+                        allSelectedImages.addAll(allSelectedItems);
+                        deleteImageListRequest(folderName, allSelectedImages);
                     }
                 }).show();
     }
+
 }

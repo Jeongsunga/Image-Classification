@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -76,7 +77,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     String baseurl = BaseURL.BASE_URL;
     Retrofit retrofit = RetrofitClient.getClient(baseurl);
     private LinkAndHeart linkAndHeart = new LinkAndHeart();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -400,4 +400,5 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             }
         });
     }
+
 }

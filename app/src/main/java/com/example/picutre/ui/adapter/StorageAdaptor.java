@@ -28,6 +28,10 @@ import com.example.picutre.network.interfaces.ImageApi;
 import com.example.picutre.network.retrofit.RetrofitClient;
 import com.example.picutre.ui.activity.FirebaseStorage_images;
 import com.example.picutre.ui.activity.InAppGallery;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,12 +53,9 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
     public StorageAdaptor(List<StorageItem> storageItemList) {
         this.storageItemList = storageItemList;
     }
-
     public StorageAdaptor(Context context) {
         this.context = context;
     }
-
-
 
     @NonNull
     @Override
@@ -134,7 +135,17 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
                     @Override
                     public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
                         if(response.isSuccessful() && response.body() != null) {
-                            Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
+                            // 파이어베이스 삭제하는 코드 작성
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference databaseRef = database.getReference(storageItem.getFolderName2());
+                            databaseRef.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
+                                    else Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            
                             // 리사이클러뷰 새로고침하는 코드 작성
                             InAppGallery inAppGallery = new InAppGallery();
                             inAppGallery.fetchDataFromServer();

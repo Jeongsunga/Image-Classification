@@ -21,6 +21,7 @@ import com.example.picutre.ui.activity.ImageOne;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class ImageAdapter extends BaseAdapter {
     private Context context;
     private List<String> imagePaths;
@@ -35,6 +36,7 @@ public class ImageAdapter extends BaseAdapter {
         this.glideRequestManager = glideRequestManager;
         this.inflater = LayoutInflater.from(context);
     }
+
     @Override
     public int getCount() {
         return imagePaths.size();

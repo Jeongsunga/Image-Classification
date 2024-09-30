@@ -166,6 +166,7 @@ public class LoadingScreen extends AppCompatActivity {
     }
 
     private void uploadFiles(byte[] zipData, String fileName) {
+        Toast.makeText(LoadingScreen.this, "폴더 압축 완료", Toast.LENGTH_SHORT).show();
         RequestBody zipRequestBody = RequestBody.create(MediaType.parse("application/zip"), zipData);
         MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", fileName, zipRequestBody);
 

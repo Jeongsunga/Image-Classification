@@ -7,6 +7,10 @@
     <item
         android:id="@+id/download"
         android:title="내려받기"/>
+    <item
+        android:id="@+id/selectAll"
+        android:title="모두선택"/>
+
 
 
 </menu>

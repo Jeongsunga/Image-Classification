@@ -24,7 +24,6 @@
         android:layout_gravity="center"
         android:text="사진 분류하기"
         android:textSize="17sp"
-
         />
 
     <Button
@@ -34,7 +33,6 @@
         android:layout_gravity="center"
         android:text="앱 내 갤러리"
         android:textSize="17sp"
-
         />
 
 </LinearLayout>

@@ -5,7 +5,6 @@ package com.example.picutre.ui.activity;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -65,7 +64,6 @@ public class InAppGallery extends AppCompatActivity {
     private OkHttpClient client = new OkHttpClient();
     String baseUrl = BaseURL.BASE_URL;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private static final int DELETE_PHOTO_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,5 +224,4 @@ public class InAppGallery extends AppCompatActivity {
         }
         Log.d(TAG, "저장 완료");
     }
-
 }

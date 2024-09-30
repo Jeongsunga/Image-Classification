@@ -104,7 +104,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginTop="40dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="17dp"
                 android:src="@drawable/threedot"
                 android:scaleType="fitCenter"
                 android:background="@android:color/transparent">

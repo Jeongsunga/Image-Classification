@@ -41,6 +41,8 @@ import com.example.picutre.network.retrofit.RetrofitClient;
 import com.example.picutre.ui.adapter.ImageAdapter;
 import com.example.picutre.R;
 import com.example.picutre.network.interfaces.ImageApi;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,7 +51,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -133,9 +137,11 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         if(item.getItemId() == R.id.delete) {
-                            showDeleteDialog();
+                            showDeleteDialog(folderName);
                         }else if(item.getItemId() == R.id.download) {
                             showDownloadDialog();
+                        }else if(item.getItemId() == R.id.selectAll) {
+                            selectAllImages(folderName);
                         }
                         return true;
                     }
@@ -246,7 +252,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
         return new String(decodedBytes, StandardCharsets.UTF_8);
     }
 
-    public void showDeleteDialog() {
+    public void showDeleteDialog(String folderName) {
         new AlertDialog.Builder(FirebaseStorage_images.this)
                 .setTitle("삭제")
                 .setMessage("선택하신 이미지들을 삭제하시겠습니까?")
@@ -254,41 +260,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        ArrayList<String> list = new ArrayList<>();
+                        deleteImageListRequest(folderName);
 
-                        ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
-                        if (!selectedImages.isEmpty()) {
-                            deleteImageList = retrofit.create(DeleteImageList.class);
-                            Call<DeleteResponse> call = deleteImageList.deleteImageList(selectedImages);
-
-                            call.enqueue(new Callback<DeleteResponse>() {
-                                @Override
-                                public void onResponse(Call<DeleteResponse> call, Response<DeleteResponse> response) {
-                                    if(response.isSuccessful() && response.body() != null) {
-                                        DeleteResponse deleteResponse = response.body();
-                                        Log.d(TAG, "응답 확인: " + deleteResponse);
-                                        boolean success = deleteResponse.isSuccess();
-                                        int imageCount = deleteResponse.getImageCount();
-                                        List<String> imageLinks = deleteResponse.getImageLinks(); // 삭제 후 서버에 남은 사진 링크 리스트
-                                        Log.d(TAG, "성공여부: " + success + " 삭제 후 폴더 내의 사진 장수: " + imageCount + " 이미지 링크 리스트: " + imageLinks);
-
-                                        Toast.makeText(FirebaseStorage_images.this, "삭제 성공", Toast.LENGTH_SHORT).show();
-                                        imageUrls.removeAll(selectedImages);
-                                        imageAdapter.clearSelection();
-                                        imageAdapter.updateData(imageLinks);
-                                        imagecount.setText(String.valueOf(imageCount));
-                                    }else {
-                                        Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, "응답 실패 혹은 바디가 널 값");
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<DeleteResponse> call, Throwable t) {
-                                    Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, "삭제 실패: " + t.getMessage());
-                                }
-                            });
-                        }else Toast.makeText(FirebaseStorage_images.this, "선택된 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
@@ -297,6 +271,64 @@ public class FirebaseStorage_images extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 }).show();
+    }
+
+    public void deleteImageListRequest(String folderName) {
+//        if(list == null) {
+//            ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
+//        }
+//        else {
+//            ArrayList<String> selectedImages = new ArrayList<>();
+//            selectedImages.addAll(list);
+//        }
+        ArrayList<String> selectedImages = imageAdapter.getSelectedImages();
+        if (!selectedImages.isEmpty()) {
+            deleteImageList = retrofit.create(DeleteImageList.class);
+            Call<DeleteResponse> call = deleteImageList.deleteImageList(selectedImages);
+
+            call.enqueue(new Callback<DeleteResponse>() {
+                @Override
+                public void onResponse(Call<DeleteResponse> call, Response<DeleteResponse> response) {
+                    if(response.isSuccessful() && response.body() != null) {
+                        DeleteResponse deleteResponse = response.body();
+                        Log.d(TAG, "응답 확인: " + deleteResponse);
+                        boolean success = deleteResponse.isSuccess();
+                        int imageCount = deleteResponse.getImageCount();
+                        List<String> imageLinks = deleteResponse.getImageLinks(); // 삭제 후 서버에 남은 사진 링크 리스트
+                        Log.d(TAG, "성공여부: " + success + " 삭제 후 폴더 내의 사진 장수: " + imageCount + " 이미지 링크 리스트: " + imageLinks);
+
+                        // 파이어베이스 삭제
+                        ImageOne imageOne = new ImageOne();
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+                        for(String getHashUrl: selectedImages) {
+                            DatabaseReference databaseReference = database.getReference(folderName).child(imageOne.getHash(getHashUrl));
+                            databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) Toast.makeText(FirebaseStorage_images.this, "삭제 성공", Toast.LENGTH_SHORT).show();
+                                    else Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+
+                        imageUrls.removeAll(selectedImages);
+                        imageAdapter.clearSelection();
+                        imageAdapter.updateData(imageLinks);
+                        imagecount.setText(String.valueOf(imageCount));
+                    }else {
+                        Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "응답 실패 혹은 바디가 널 값");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<DeleteResponse> call, Throwable t) {
+                    Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "삭제 실패: " + t.getMessage());
+                }
+            });
+        }else Toast.makeText(FirebaseStorage_images.this, "선택된 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
     }
 
     public void showDownloadDialog() {
@@ -320,6 +352,43 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                    }
+                }).show();
+    }
+
+    public void selectAllImages(String folderName) {
+        List<String> allSelectedItems = new ArrayList<>();
+
+        Drawable currentDrawable = imageButton.getDrawable();
+        Drawable expectedDrawable = ContextCompat.getDrawable(FirebaseStorage_images.this, R.drawable.heart);
+
+        if(currentDrawable.getConstantState().equals(expectedDrawable.getConstantState())) {
+            // 찜하기 버튼이 눌러져 있지 않은 상태일 때
+            allSelectedItems.addAll(imageUrls);
+        }else { // 찜하기 버튼이 눌러져 있을 때
+            allSelectedItems.addAll(favoriteImageUrls);
+        }
+        Log.d(TAG, "값 확인: " + allSelectedItems);
+        new AlertDialog.Builder(FirebaseStorage_images.this)
+                .setMessage("삭제하시겠습니까 저장하시겠습니까?")
+                .setPositiveButton("저장", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ArrayList<String> selectedImages = new ArrayList<>();
+                        selectedImages.addAll(allSelectedItems);
+                        /*imageAdapter.getSelectedImages();*/
+                        if (!selectedImages.isEmpty()) {
+                            InAppGallery inAppGallery = new InAppGallery();
+                            inAppGallery.downloadImage(selectedImages, FirebaseStorage_images.this);
+                            Toast.makeText(FirebaseStorage_images.this, "저장 완료", Toast.LENGTH_SHORT).show();
+                        }else Toast.makeText(FirebaseStorage_images.this, "선택된 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("삭제", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        deleteImageListRequest(folderName);
                     }
                 }).show();
     }

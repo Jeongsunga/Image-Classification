@@ -222,10 +222,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
                     Toast.makeText(FirebaseStorage_images.this, "파이어베이스에 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                 }else {
                     if(num == 3){
-                        // 좋아요 누른 사진만 보이게 하는 구문 실행
                         favoriteImageUrls.clear();
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            //반복문으로 데이터 리스트 추출
+                            //반복문으로 true인 데이터 리스트 추출
                             if(dataSnapshot.getValue(Boolean.class)) {
                                 String url = decodeUrl(dataSnapshot.getKey());
                                 favoriteImageUrls.add(url);

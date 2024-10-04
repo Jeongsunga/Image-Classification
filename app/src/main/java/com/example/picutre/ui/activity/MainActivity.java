@@ -36,8 +36,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
-    private Button btn_sort;
-    private Button btn_inappGallery;
+    private RelativeLayout btn_sort, btn_inappGallery;
     private long backBtnTime = 0;
     private ApiService apiService;
     String apiURL = BaseURL.BASE_URL;
@@ -77,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
         btn_sort = findViewById(R.id.btn_sort);
         btn_inappGallery = findViewById(R.id.btn_inappGallery);
-
 
         btn_sort.setOnClickListener(new View.OnClickListener() {
             @Override

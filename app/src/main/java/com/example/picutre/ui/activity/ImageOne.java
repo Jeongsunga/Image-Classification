@@ -53,6 +53,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,8 +87,10 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         setContentView(R.layout.activity_image_one);
 
         // Check if permissions are still granted
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
         } else {
             Toast.makeText(this, "Permissions are not granted", Toast.LENGTH_SHORT).show();
         }
@@ -378,7 +382,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         });
     }
 
-    // 이미지 URL을 Base64로 변환
+    // 이미지 URL의 / 를 $로 변환
     public String getHash(@NonNull String input) {
         return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }

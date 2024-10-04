@@ -172,7 +172,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://172.21.248.210:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://192.168.35.139:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -190,19 +190,10 @@ def serve_image(folder_name, filename):
 def image_metadata():
     image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
-    print(f"Converted image path: {image_url}")
-
-    # 이미지 파일 경로 추출 (로컬 경로로 변환)
-    image_path = image_url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
-
-    # 불필요한 따옴표 제거
+    image_path = image_url.replace("http://192.168.35.139:5000/images", 
+                                   "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
     image_path = image_path.strip('"')
-
-    # 운영체제에 맞는 경로 구분자로 변환
     image_path = os.path.normpath(image_path)
-
-    # 디버깅을 위한 경로 출력
-    print(f"Converted image path: {image_path}")
 
     # 파일이 실제로 존재하는지 확인
     if not os.path.exists(image_path):
@@ -261,7 +252,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://192.168.35.139:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -286,7 +277,7 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://172.21.248.210:5000/images"
+        base_url = "http://192.168.35.139:5000/images"
 
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
@@ -328,7 +319,7 @@ def delete_images():
             if not url:
                 return jsonify({'success': False, 'error': 'No image URLs provided'}), 400
 
-            image_path = url.replace("http://172.21.248.210:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+            image_path = url.replace("http://192.168.35.139:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
             image_path = image_path.strip('"')
             image_path = os.path.normpath(image_path)
 
@@ -345,7 +336,7 @@ def delete_images():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://172.21.248.210:5000/images"
+        base_url = "http://192.168.35.139:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         return jsonify({

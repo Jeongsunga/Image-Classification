@@ -142,65 +142,6 @@ public class Filter extends AppCompatActivity {
             }
         });
 
-//        btn_next.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //분류 필터를 한 가지도 선택하지 않았을 때 토스트 문구 알림
-//                if(!chbox_faceOpen.isChecked() && !chbox_eyeclosed.isChecked() &&
-//                        !chbox_hopeDate.isChecked() && !chbox_locate.isChecked()) {
-//                    Toast toast = Toast.makeText(getApplicationContext(), "필터를 한 가지 선택해 주세요.",Toast.LENGTH_SHORT);
-//                    toast.show();
-//                }
-//                /*
-//                선택할 수 있는 필터
-//                1. 얼굴 보이기 넘기는 값 :1
-//                2. 눈 뜨기 : 2
-//                3. 날짜 : 3
-//                4. 위치 : 4
-//
-//                사용자가 선택한 분류 방식에 따라 서버에 다른 값을 넘겨주어 분류 파이썬 코드를 돌아가게 한다. */
-//                // 얼굴 보이기와 다른 필터를 하나 선택했을 때
-//                if(chbox_faceOpen.isChecked() && (chbox_locate.isChecked() || chbox_hopeDate.isChecked() || chbox_eyeclosed.isChecked())) {
-//                    Toast.makeText(getApplicationContext(), "필터를 한 가지만 선택해 주세요.",Toast.LENGTH_SHORT).show();
-//
-//                // 날짜와 다른 필터 하나를 선택했을 때
-//                }else if(chbox_hopeDate.isChecked() && (chbox_faceOpen.isChecked() || chbox_locate.isChecked() || chbox_eyeclosed.isChecked())) {
-//                    Toast.makeText(getApplicationContext(), "필터를 한 가지만 선택해 주세요.",Toast.LENGTH_SHORT).show();
-//                // 지역과 다른 필터 하나를 선택했을 때
-//                }else if(chbox_locate.isChecked() && (chbox_faceOpen.isChecked() || chbox_hopeDate.isChecked() || chbox_eyeclosed.isChecked())) {
-//                    Toast.makeText(getApplicationContext(), "필터를 한 가지만 선택해 주세요.",Toast.LENGTH_SHORT).show();
-//                // 눈과 다른 필터 하나를 선택했을 때
-//                } else if (chbox_eyeclosed.isChecked() && (chbox_faceOpen.isChecked() || chbox_hopeDate.isChecked() || chbox_locate.isChecked())) {
-//                    Toast.makeText(getApplicationContext(), "필터를 한 가지만 선택해 주세요.",Toast.LENGTH_SHORT).show();
-//                }
-//
-//                //얼굴 보이기 필터만 선택되었을 때
-//                if(chbox_faceOpen.isChecked() && !chbox_hopeDate.isChecked() && !chbox_locate.isChecked() && !chbox_eyeclosed.isChecked()) {
-//
-//                    sendDataToServer(1);
-//
-//                } // 날짜 필터만 선택되었을 때
-//                else if(chbox_hopeDate.isChecked() && !chbox_faceOpen.isChecked() && !chbox_locate.isChecked() && !chbox_eyeclosed.isChecked()) {
-//                    Intent intent = new Intent(Filter.this, DateFilter.class);
-//                    sendDataToServer(3);
-//                    startActivity(intent);
-//                }
-//                // 위치 필터만 선택되었을 때
-//                else if(chbox_locate.isChecked() && !chbox_faceOpen.isChecked() && !chbox_hopeDate.isChecked() && !chbox_eyeclosed.isChecked()) {
-//                    sendDataToServer(4);
-//                    Intent intent = new Intent(Filter.this, GalleryList.class);
-//                    startActivity(intent);
-//                }
-//                //  눈 보이기 필터가 선택되었을 때
-//                else if(chbox_eyeclosed.isChecked() && !chbox_hopeDate.isChecked() && !chbox_locate.isChecked() && !chbox_faceOpen.isChecked()) {
-//                    sendDataToServer(2);
-//                    Intent intent = new Intent(Filter.this, GalleryList.class);
-//                    startActivity(intent);
-//                }
-//
-//            }
-//        });
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -209,49 +150,69 @@ public class Filter extends AppCompatActivity {
     }
 
     // Highlight the selected RelativeLayout to show it's been chosen
+//    private void highlightSelection(TextView selectedTextView) {
+//        if(selectedTextView == tv1) {
+//            selectedTextView.setBackgroundColor(Color.WHITE);
+//            selectedTextView.setTextColor(Color.BLACK);
+//
+//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv2.setTextColor(Color.WHITE);
+//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv3.setTextColor(Color.WHITE);
+//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv4.setTextColor(Color.WHITE);
+//        }
+//        else if(selectedTextView == tv2) {
+//            selectedTextView.setBackgroundColor(Color.WHITE);
+//            selectedTextView.setTextColor(Color.BLACK);
+//
+//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv1.setTextColor(Color.WHITE);
+//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv3.setTextColor(Color.WHITE);
+//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv4.setTextColor(Color.WHITE);
+//        }else if(selectedTextView == tv3) {
+//            selectedTextView.setBackgroundColor(Color.WHITE);
+//            selectedTextView.setTextColor(Color.BLACK);
+//
+//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv2.setTextColor(Color.WHITE);
+//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv1.setTextColor(Color.WHITE);
+//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv4.setTextColor(Color.WHITE);
+//        }else {
+//            selectedTextView.setBackgroundColor(Color.WHITE);
+//            selectedTextView.setTextColor(Color.BLACK);
+//
+//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv2.setTextColor(Color.WHITE);
+//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv3.setTextColor(Color.WHITE);
+//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
+//            tv1.setTextColor(Color.WHITE);
+//        }
+//    }
+
     private void highlightSelection(TextView selectedTextView) {
-        if(selectedTextView == tv1) {
-            selectedTextView.setBackgroundColor(Color.WHITE);
-            selectedTextView.setTextColor(Color.BLACK);
+        // Reset all TextViews to the default background and text color
+        resetTextViews();
+        selectedTextView.setTextColor(Color.BLACK);
+        selectedTextView.setBackgroundResource(R.drawable.arc_menu);
+    }
 
-            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv2.setTextColor(Color.WHITE);
-            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv3.setTextColor(Color.WHITE);
-            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv4.setTextColor(Color.WHITE);
-        }
-        else if(selectedTextView == tv2) {
-            selectedTextView.setBackgroundColor(Color.WHITE);
-            selectedTextView.setTextColor(Color.BLACK);
+    private void resetTextViews() {
+        // Reset the text color and background for each TextView
+        tv1.setTextColor(Color.WHITE);
+        tv1.setBackgroundResource(R.drawable.arc_shape_purple);
+        tv2.setTextColor(Color.WHITE);
+        tv2.setBackgroundResource(R.drawable.arc_shape_purple);
 
-            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv1.setTextColor(Color.WHITE);
-            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv3.setTextColor(Color.WHITE);
-            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv4.setTextColor(Color.WHITE);
-        }else if(selectedTextView == tv3) {
-            selectedTextView.setBackgroundColor(Color.WHITE);
-            selectedTextView.setTextColor(Color.BLACK);
-
-            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv2.setTextColor(Color.WHITE);
-            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv1.setTextColor(Color.WHITE);
-            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv4.setTextColor(Color.WHITE);
-        }else {
-            selectedTextView.setBackgroundColor(Color.WHITE);
-            selectedTextView.setTextColor(Color.BLACK);
-
-            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv2.setTextColor(Color.WHITE);
-            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv3.setTextColor(Color.WHITE);
-            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-            tv1.setTextColor(Color.WHITE);
-        }
+        tv3.setTextColor(Color.WHITE);
+        tv3.setBackgroundResource(R.drawable.arc_shape_purple);
+        tv4.setTextColor(Color.WHITE);
+        tv4.setBackgroundResource(R.drawable.arc_shape_purple);
     }
 
     private void sendDataToServer(int num) {

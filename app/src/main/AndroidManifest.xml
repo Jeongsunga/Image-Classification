@@ -37,7 +37,7 @@
             android:name=".ui.activity.DateFilter"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.inAppGallery"
+            android:name=".ui.activity.InAppGallery"
             android:exported="false" />
         <activity
             android:name=".ui.activity.GalleryList"

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,8 +48,8 @@ import retrofit2.Response;
 
 public class DateFilter extends AppCompatActivity {
 
-    private Button btn_next;
-    private Button btn_oneday, btn_twoday;
+    private RelativeLayout btn_next;
+    private RelativeLayout btn_oneday, btn_twoday;
     private TextView tv_date;
     Calendar calendar;
     private EditText editTitle;

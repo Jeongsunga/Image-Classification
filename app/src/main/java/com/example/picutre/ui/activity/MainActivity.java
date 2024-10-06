@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import android.Manifest;
@@ -35,8 +36,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
-    private Button btn_sort;
-    private Button btn_inappGallery;
+    private RelativeLayout btn_sort, btn_inappGallery;
     private long backBtnTime = 0;
     private ApiService apiService;
     String apiURL = BaseURL.BASE_URL;
@@ -91,10 +91,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendDataToServer(); //앱과 서버가 연결되어 있는지 확인할 수 있는 간단한 코드
-                Intent intent = new Intent(MainActivity.this, inAppGallery.class);
+                Intent intent = new Intent(MainActivity.this, InAppGallery.class);
                 startActivity(intent);
             }
         });
+
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

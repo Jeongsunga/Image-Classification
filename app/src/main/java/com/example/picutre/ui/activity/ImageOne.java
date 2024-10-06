@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -52,6 +53,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,7 +80,6 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     Retrofit retrofit = RetrofitClient.getClient(baseurl);
     private LinkAndHeart linkAndHeart = new LinkAndHeart();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,8 +87,10 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         setContentView(R.layout.activity_image_one);
 
         // Check if permissions are still granted
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED) {
         } else {
             Toast.makeText(this, "Permissions are not granted", Toast.LENGTH_SHORT).show();
         }
@@ -303,13 +307,13 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 t.printStackTrace();
                 new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show());
-                Log.d(TAG, "응답이 오지 않았습니다.");
+                Log.d(TAG, "응답 실패: " + t.getMessage());
             }
         });
     }
 
     // 이미지 URL에서 폴더 이름 추출 메서드
-    private String getFolderNameFromUrl(String url) {
+    public String getFolderNameFromUrl(String url) {
         // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
         Uri uri = Uri.parse(url);
         List<String> pathSegments = uri.getPathSegments();
@@ -318,7 +322,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
     }
 
     // 이미지 URL에서 파일 이름 추출 메서드
-    private String getImageNameFromUrl(String url) {
+    public String getImageNameFromUrl(String url) {
         // 예시 URL: http://172.21.223.102:5000/images/서울_test1/20240413_152945.jpg
         Uri uri = Uri.parse(url);
         return uri.getLastPathSegment(); // "20240413_152945.jpg" 부분을 추출
@@ -378,7 +382,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
         });
     }
 
-    // 이미지 URL을 Base64로 변환
+    // 이미지 URL의 / 를 $로 변환
     public String getHash(@NonNull String input) {
         return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }
@@ -400,4 +404,5 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
             }
         });
     }
+
 }

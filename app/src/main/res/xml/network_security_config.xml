@@ -3,7 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">your.domain.com</domain>
         <!-- 또는 특정 IP 주소에 대해서만 허용 -->
-        <domain includeSubdomains="true">172.21.210.201</domain>
+        <domain includeSubdomains="true">192.168.35.139</domain>
     </domain-config>
 
     <!-- 모든 도메인에 대해 허용하려면 이 설정을 사용 -->

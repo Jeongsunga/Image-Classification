@@ -1,4 +1,5 @@
 package com.example.picutre.ui.adapter;
+// 사진 한장만 보이는 화면 어댑터
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
@@ -39,7 +40,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
 
 public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.ImageViewHolder>{
 

@@ -135,7 +135,7 @@ public class Filter extends AppCompatActivity {
                         Intent intent = new Intent(Filter.this, DateFilter.class);
                         startActivity(intent);
                     }else {
-                        Intent intent = new Intent(Filter.this, GalleryList.class);
+                        Intent intent = new Intent(Filter.this, PickFolderLocation.class);
                         startActivity(intent);
                     }
                 }
@@ -148,52 +148,6 @@ public class Filter extends AppCompatActivity {
             return insets;
         });
     }
-
-    // Highlight the selected RelativeLayout to show it's been chosen
-//    private void highlightSelection(TextView selectedTextView) {
-//        if(selectedTextView == tv1) {
-//            selectedTextView.setBackgroundColor(Color.WHITE);
-//            selectedTextView.setTextColor(Color.BLACK);
-//
-//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv2.setTextColor(Color.WHITE);
-//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv3.setTextColor(Color.WHITE);
-//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv4.setTextColor(Color.WHITE);
-//        }
-//        else if(selectedTextView == tv2) {
-//            selectedTextView.setBackgroundColor(Color.WHITE);
-//            selectedTextView.setTextColor(Color.BLACK);
-//
-//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv1.setTextColor(Color.WHITE);
-//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv3.setTextColor(Color.WHITE);
-//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv4.setTextColor(Color.WHITE);
-//        }else if(selectedTextView == tv3) {
-//            selectedTextView.setBackgroundColor(Color.WHITE);
-//            selectedTextView.setTextColor(Color.BLACK);
-//
-//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv2.setTextColor(Color.WHITE);
-//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv1.setTextColor(Color.WHITE);
-//            tv4.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv4.setTextColor(Color.WHITE);
-//        }else {
-//            selectedTextView.setBackgroundColor(Color.WHITE);
-//            selectedTextView.setTextColor(Color.BLACK);
-//
-//            tv2.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv2.setTextColor(Color.WHITE);
-//            tv3.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv3.setTextColor(Color.WHITE);
-//            tv1.setBackgroundColor(Color.argb(255, 81, 0, 141)); //보라색
-//            tv1.setTextColor(Color.WHITE);
-//        }
-//    }
 
     private void highlightSelection(TextView selectedTextView) {
         // Reset all TextViews to the default background and text color

@@ -2,18 +2,20 @@ package com.example.picutre.ui.activity;
 // 앱을 처음 켜면 보이는 1번 화면
 // 사진 분류하기 & DB 내의 분류 결과를 확인하는 버튼 2가지가 있다.
 
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import android.Manifest;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private boolean checkPermissions() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -122,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Permissions denied
                 Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+                //Log.d(TAG, "허용 안된 권한: " + grantResults);
             }
         }
     }

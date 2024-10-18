@@ -22,6 +22,7 @@ import com.example.picutre.model.StorageItem;
 import com.example.picutre.network.interfaces.FolderNameApi;
 import com.example.picutre.network.retrofit.RetrofitClient;
 import com.example.picutre.ui.activity.LoadingScreen;
+import com.example.picutre.ui.activity.NewLoadingScreen;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -66,31 +67,9 @@ public class ServerFolderAdapter extends RecyclerView.Adapter<ServerFolderAdapte
                 .into(holder.firstImageView);
 
         holder.itemView.setOnClickListener(v -> {
-            // 사용자가 폴더를 선택했을 때 폴더 이름을 서버로 전송
-            //Log.d(TAG, "사용자가 선택한 폴더 이름: " + storageItem.getFolderName2());
-            folderNameApi = retrofit.create(FolderNameApi.class);
-            Call<ResponseData> call = folderNameApi.classifyFolder(storageItem.getFolderName2());
-            call.enqueue(new Callback<ResponseData>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseData> call, Response<ResponseData> response) {
-                    if(response != null && response.isSuccessful()) {
-                        ResponseData myResponse = response.body();
-                        Log.d(TAG, "Success: " + myResponse.getMessage());
-                    }else {
-                        ResponseData myResponse = response.body();
-                        Log.d(TAG, "Error: " + myResponse.getMessage());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseData> call, Throwable t) {
-                    Log.d(TAG, t.getMessage());
-                    Toast.makeText(context, "서버 전송 실패", Toast.LENGTH_SHORT).show();
-                }
-            });
-
             Context context = holder.itemView.getContext();
-            Intent intent = new Intent(context, LoadingScreen.class);
+            Intent intent = new Intent(context, NewLoadingScreen.class);
+            intent.putExtra("folderName", storageItem.getFolderName2());
             context.startActivity(intent);
         });
     }

@@ -134,9 +134,9 @@ def upload_file():
 def classify_server_folder():
     global filterNumber, periodNumber, folderName, innoDate
 
-    print('서버에서 데이터를 받아옵니다.')
-
     data = request.json
+    print('서버에서 받아옵니다 ', data)
+
     if data == '':
         return jsonify({"status": "fail", "message": "No selected folder"}), 400
     
@@ -145,17 +145,17 @@ def classify_server_folder():
 
     if os.path.exists(test_folder_path) and os.path.isdir(test_folder_path):
         if filterNumber == 1: # 얼굴
-            face.detect_face2(test_folder_path)
+            face.detect_face2(data)
         elif filterNumber == 2: # 얼굴&눈
-            face.detect_face2(test_folder_path)
-            eyes.detect_eyes2(test_folder_path)
+            face.detect_face2(data)
+            eyes.detect_eyes2(data)
         elif filterNumber == 3:
             if periodNumber == 1: # 하루
-                pic_date.sortDate2(innoDate, folderName, test_folder_path)
+                pic_date.sortDate2(innoDate, folderName, data)
             else: # 기간
-                period.pic_period2(innoDate, folderName, test_folder_path)
+                period.pic_period2(innoDate, folderName, data)
         elif filterNumber == 4: # 위치
-            location.sortLocation2(test_folder_path)
+            location.sortLocation2(data)
         else:
             print("잘못된 접근입니다.")
 
@@ -163,7 +163,7 @@ def classify_server_folder():
         print("test 폴더가 존재하지 않습니다.")
         return jsonify({"status": "fail", "message": "No existed folder"}), 400
 
-    return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+    return jsonify({'message': 'File uploaded successfully', 'file_name': data}), 200
 
 
 # 분류 완료된 결과를 사용자 앱으로 JSON 형태로 보내는 라우터
@@ -211,7 +211,7 @@ def get_images(folder_name):
         return jsonify({'error': 'Folder not found'}), 404
     
     images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://192.168.7.10:5000/images/{folder_name}/{image}' for image in images]
+    image_urls = [f'http://172.21.198.179:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -229,7 +229,7 @@ def serve_image(folder_name, filename):
 def image_metadata():
     image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
-    image_path = image_url.replace("http://192.168.7.10:5000/images", 
+    image_path = image_url.replace("http://172.21.198.179:5000/images", 
                                     "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
     image_path = image_path.strip('"')
     image_path = os.path.normpath(image_path)
@@ -291,7 +291,7 @@ def delete_image():
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
         # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+        image_path = image_url.replace("http://172.21.198.179:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
 
         # 불필요한 따옴표 제거
         image_path = image_path.strip('"')
@@ -316,7 +316,7 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://192.168.7.10:5000/images"
+        base_url = "http://172.21.198.179:5000/images"
 
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
@@ -358,7 +358,7 @@ def delete_images():
             if not url:
                 return jsonify({'success': False, 'error': 'No image URLs provided'}), 400
 
-            image_path = url.replace("http://192.168.7.10:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+            image_path = url.replace("http://172.21.198.179:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
             image_path = image_path.strip('"')
             image_path = os.path.normpath(image_path)
 
@@ -375,7 +375,7 @@ def delete_images():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://192.168.7.10:5000/images"
+        base_url = "http://172.21.198.179:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         return jsonify({

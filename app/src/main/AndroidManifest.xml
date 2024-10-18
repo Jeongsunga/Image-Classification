@@ -24,6 +24,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activity.NewLoadingScreen"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.ServerFolderList"
             android:exported="false" />
         <activity

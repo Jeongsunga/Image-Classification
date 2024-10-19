@@ -13,7 +13,7 @@ def floatmul(a):
 # 스마트폰 갤러리의 폴더를 분류할 때
 def sortLocation(extractFolder):
     
-    image_path = "./" + extractFolder + "/" + extractFolder + "/"
+    image_path = "./" + extractFolder + "/"
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
     img_list_np = []

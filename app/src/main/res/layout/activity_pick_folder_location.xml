@@ -8,62 +8,115 @@
     tools:context=".ui.activity.PickFolderLocation"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Please select the location of\nthe folder you want to classify."
-        android:textSize="22dp"
-        android:layout_marginLeft="35dp"
-        android:paddingTop="40dp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="50dp"/>
-
     <LinearLayout
-        android:id="@+id/advice"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="60dp"
-        android:layout_marginBottom="5dp">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/direct"
-            android:rotation="90"/>
+        android:orientation="vertical"
+        android:padding="40dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="처음이라면 Local 선택!"
-            android:layout_marginLeft="5dp"
-            android:textSize="15dp"
-            android:textStyle="bold"/>
+            android:text="Please select the location of\nthe folder you want to classify."
+            android:textSize="22dp"
+            android:textFontWeight="70"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/black"
+            android:layout_marginTop="10dp"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="40dp">
+        android:orientation="vertical">
 
-        <Button
+        <LinearLayout
+            android:id="@+id/advice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/direct"
+                android:rotation="90"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="처음이라면 Local을 선택하세요."
+                android:layout_marginLeft="5dp"
+                android:textSize="15dp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RelativeLayout
             android:id="@+id/local"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:textSize="25dp"
-            android:text="Local"/>
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:background="@drawable/shape"
+            android:layout_marginLeft="30dp">
 
-        <Button
+            <ImageView
+                android:id="@+id/i1"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/local"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Local"
+                android:textColor="#000"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:layout_below="@id/i1"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:id="@+id/server"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:textSize="25dp"
-            android:text="Server"/>
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:background="@drawable/shape"
+            android:layout_marginLeft="40dp">
+
+            <ImageView
+                android:id="@+id/i2"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/server"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Server"
+                android:textColor="#000"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:layout_below="@id/i2"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

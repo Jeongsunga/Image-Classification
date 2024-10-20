@@ -150,31 +150,6 @@ public class Filter extends AppCompatActivity {
     }
 
     // Highlight the selected RelativeLayout to show it's been chosen
-    private void highlightSelection(TextView selectedTextView) {
-        // Reset all TextViews to the default background and text color
-        resetTextViews();
-
-        // Set the selected TextView's text color to black, keeping its current background
-        selectedTextView.setTextColor(Color.BLACK);
-    }
-
-    // Reset all TextViews to their default state
-    private void resetTextViews() {
-        // Reset the text color and background for each TextView
-        tv1.setTextColor(Color.WHITE);
-        tv1.setBackgroundResource(R.drawable.arc_shape_purple);
-
-        tv2.setTextColor(Color.WHITE);
-        tv2.setBackgroundResource(R.drawable.arc_shape_purple);
-
-        tv3.setTextColor(Color.WHITE);
-        tv3.setBackgroundResource(R.drawable.arc_shape_purple);
-
-        tv4.setTextColor(Color.WHITE);
-        tv4.setBackgroundResource(R.drawable.arc_shape_purple);
-    }
-
-//    // Highlight the selected RelativeLayout to show it's been chosen
 //    private void highlightSelection(TextView selectedTextView) {
 //        if(selectedTextView == tv1) {
 //            selectedTextView.setBackgroundColor(Color.WHITE);
@@ -219,6 +194,26 @@ public class Filter extends AppCompatActivity {
 //            tv1.setTextColor(Color.WHITE);
 //        }
 //    }
+
+    private void highlightSelection(TextView selectedTextView) {
+        // Reset all TextViews to the default background and text color
+        resetTextViews();
+        selectedTextView.setTextColor(Color.BLACK);
+        selectedTextView.setBackgroundResource(R.drawable.arc_menu);
+    }
+
+    private void resetTextViews() {
+        // Reset the text color and background for each TextView
+        tv1.setTextColor(Color.WHITE);
+        tv1.setBackgroundResource(R.drawable.arc_shape_purple);
+        tv2.setTextColor(Color.WHITE);
+        tv2.setBackgroundResource(R.drawable.arc_shape_purple);
+
+        tv3.setTextColor(Color.WHITE);
+        tv3.setBackgroundResource(R.drawable.arc_shape_purple);
+        tv4.setTextColor(Color.WHITE);
+        tv4.setBackgroundResource(R.drawable.arc_shape_purple);
+    }
 
     private void sendDataToServer(int num) {
         // 요청 데이터 생성

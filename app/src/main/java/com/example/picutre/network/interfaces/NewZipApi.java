@@ -7,8 +7,8 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 
-public interface SendZip {
+public interface NewZipApi {
     @Multipart
-    @POST("/post/folderZip")
-    Call<ResponseBody> uploadZipFile(@Part MultipartBody.Part file);
+    @POST("post/folderZip")
+    Call<ResponseBody> uploadFile(@Part MultipartBody.Part uploaded_file);
 }

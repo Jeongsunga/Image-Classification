@@ -27,7 +27,7 @@ def pic_period(innoDate, folderName, extractFolder):
     else: # 사용자 지정 폴더 이름 있음
         title = folderName
 
-    image_path = './' + extractFolder + '/' + extractFolder + '/'
+    image_path = './' + extractFolder + '/'
     img_list = os.listdir(image_path)
     img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png")]
     img_list_np = []

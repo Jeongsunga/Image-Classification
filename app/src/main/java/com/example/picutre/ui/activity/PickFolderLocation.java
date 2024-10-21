@@ -7,6 +7,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,7 +20,7 @@ import com.example.picutre.R;
 public class PickFolderLocation extends AppCompatActivity {
 
     private LinearLayout advice;
-    private Button local, server;
+    private RelativeLayout local, server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

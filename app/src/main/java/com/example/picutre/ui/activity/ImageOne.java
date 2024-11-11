@@ -269,9 +269,7 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                             // 외부 저장소 경로 설정 (폴더 생성)
                             File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
                             File folder = new File(externalStorageDir, folderName);
-                            if (!folder.exists()) {
-                                folder.mkdirs(); // 폴더가 없으면 생성
-                            }
+                            if (!folder.exists()) folder.mkdirs(); // 폴더가 없으면 생성
 
                             // 이미지 파일 경로 설정
                             String imageName = getImageNameFromUrl(imagePath);
@@ -282,31 +280,31 @@ public class ImageOne extends AppCompatActivity implements ImageSliderAdapter.On
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
                             }
 
-                            // 미디어 스캐너에 이미지 추가 알림
-                            //MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), null);
-
                             // 갤러리 업데이트
                             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
 
                             // UI 스레드에서 Toast 메시지
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장되었습니다.", Toast.LENGTH_SHORT).show());
+                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장되었습니다.",
+                                    Toast.LENGTH_SHORT).show());
 
                         } catch (IOException e) {
                             e.printStackTrace();
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show());
+                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.",
+                                    Toast.LENGTH_SHORT).show());
                             Log.d(TAG, "예외 발생");
                         }
                     }).start();
                 } else {
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show());
-                    Log.d(TAG, "응답이 실패하였거나 바디가 비었습니다.");
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.",
+                            Toast.LENGTH_SHORT).show());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 t.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show());
+                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(ImageOne.this, "저장에 실패했습니다.",
+                        Toast.LENGTH_SHORT).show());
                 Log.d(TAG, "응답 실패: " + t.getMessage());
             }
         });

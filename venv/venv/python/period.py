@@ -20,7 +20,7 @@ def pic_period(innoDate, folderName, extractFolder):
     # 정규 표현식 패턴 정의
     pattern = r'^\d{4}년 \d{2}월 \d{2}일-\d{4}년 \d{2}월 \d{2}일$'
     
-    # # 문자열이 패턴과 일치하는지 검사
+    # 문자열이 패턴과 일치하는지 검사
     match = re.match(pattern, folderName)
     if match: # 사용자 지정 폴더 이름 없음
         title = start_year + start_month + start_day + ' - ' + end_year + end_month + end_day
@@ -29,7 +29,8 @@ def pic_period(innoDate, folderName, extractFolder):
 
     image_path = './' + extractFolder + '/'
     img_list = os.listdir(image_path)
-    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png")]
+    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") 
+                    or img.endswith(".jpeg") or img.endswith(".JPEG") or img.endswith(".JPG") or img.endswith(".PNG")]
     img_list_np = []
 
     j = 0
@@ -101,8 +102,8 @@ def pic_period(innoDate, folderName, extractFolder):
                     moderate = True
                     # 시작/마감 년/월이 같고 날만 다를 때
                     if(pic_date_year == start_year == end_year and 
-                       pic_date_month == start_month == end_month and 
-                       start_day <= pic_date_day <= end_day): moderate = True
+                        pic_date_month == start_month == end_month and 
+                        start_day <= pic_date_day <= end_day): moderate = True
                     else: moderate = False
 
                     # 시작/마감 년은 같은데 달이 다를 때, 시작 월인데 날이 시작 날보다 이르거나, 마감 월인데 마감 일보다 늦거나
@@ -179,7 +180,8 @@ def pic_period2(innoDate, folderName, extractFolder):
 
     image_path = './ClassifyResult/' + extractFolder + '/'
     img_list = os.listdir(image_path)
-    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png")]
+    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") 
+                    or img.endswith(".jpeg") or img.endswith(".JPEG") or img.endswith(".JPG") or img.endswith(".PNG")]
     img_list_np = []
 
     j = 0

@@ -94,8 +94,7 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
 
         // 사용자가 폴더를 길게 누를 때 삭제 or 다운 받을 수 있게 함
         holder.itemView.setOnLongClickListener(v -> {
-            //Log.d(TAG, "선택한 폴더 이름: " + storageItem.getFolderName2());
-            Context context = v.getContext();  // Context 가져오기
+            Context context = v.getContext();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(storageItem.getFolderName2() + "을(를) 선택했습니다.");
@@ -109,7 +108,6 @@ public class StorageAdaptor extends RecyclerView.Adapter<StorageAdaptor.StorageI
                     public void onResponse(Call<List<String>> call, Response<List<String>> response) {
                         if(response != null && response.isSuccessful()) {
                             List<String> imageUrls = response.body();
-                            Log.d(TAG, "이미지 링크 리스트: " + imageUrls);
                             InAppGallery inAppGallery = new InAppGallery();
                             inAppGallery.downloadImage(imageUrls, context);
                             Toast.makeText(context, "저장 완료", Toast.LENGTH_SHORT).show();

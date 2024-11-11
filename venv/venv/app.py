@@ -80,7 +80,6 @@ def upload_file():
 
     if file:
         # 청크 단위로 zip 파일 저장
-        # zip 파일이 uploads 폴더(로컬 저장소)에 저장됨, 서버를 꺼도 삭제되지 않음
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         with open(file_path, 'wb') as f:
             while True:
@@ -90,10 +89,9 @@ def upload_file():
                 f.write(chunk)
         #file.save(file_path)
         
-        # 파일을 성공적으로 저장한 경우
         print("File uploaded successfully : ", file.filename)
 
-        #zip_file_path = './uploads/' + file.filename  # ZIP 파일의 경로
+        # ZIP 파일의 경로
         zip_file_path = file_path
         extract_to_folder = file.filename.replace('.zip', '') # 압축을 풀고난 결과 파일을 저장할 폴더 이름
 
@@ -120,19 +118,10 @@ def upload_file():
         else:
             print("잘못된 접근입니다.")
 
-        # 현재 디렉터리 (app.py가 위치한 경로)
         current_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # A 폴더와 B 폴더 경로 설정
         source_dir = os.path.join(current_dir, extract_to_folder)
         destination_dir = os.path.join(current_dir, extracted, extract_to_folder)
-
-        # A 폴더를 B 폴더 안으로 이동, 압축 푼 폴더들을 한 곳에 모아놓기 위함
         shutil.move(source_dir, destination_dir)
-
-        # zip 파일 삭제
-        #remove_file = './uploads/' + folderName + '.zip'
-        #os.remove(remove_file)
 
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
 
@@ -143,8 +132,6 @@ def classify_server_folder():
     global filterNumber, periodNumber, folderName, innoDate
 
     data = request.json
-    print('서버에서 받아옵니다 ', data)
-
     if data == '':
         return jsonify({"status": "fail", "message": "No selected folder"}), 400
     
@@ -218,8 +205,8 @@ def get_images(folder_name):
     if not os.path.isdir(folder_path):
         return jsonify({'error': 'Folder not found'}), 404
     
-    images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    image_urls = [f'http://172.21.198.179:5000/images/{folder_name}/{image}' for image in images]
+    images = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg', '.JPEG', '.JPG', '.PNG'))]
+    image_urls = [f'http://192.168.35.169:5000/images/{folder_name}/{image}' for image in images]
 
     return jsonify(image_urls)
 
@@ -237,7 +224,7 @@ def serve_image(folder_name, filename):
 def image_metadata():
     image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
 
-    image_path = image_url.replace("http://172.21.198.179:5000/images", 
+    image_path = image_url.replace("http://192.168.35.169:5000/images", 
                                     "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
     image_path = image_path.strip('"')
     image_path = os.path.normpath(image_path)
@@ -297,20 +284,10 @@ def delete_image():
     
     try:
         image_url = request.data.decode('utf-8')  # 문자열 데이터로 받기
-
-        # 이미지 파일 경로 추출 (로컬 경로로 변환)
-        image_path = image_url.replace("http://172.21.198.179:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
-
-        # 불필요한 따옴표 제거
+        image_path = image_url.replace("http://192.168.35.169:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
         image_path = image_path.strip('"')
-
-        # 운영체제에 맞는 경로 구분자로 변환
         image_path = os.path.normpath(image_path)
 
-        # 디버깅을 위한 경로 출력
-        print(f"Converted image path: {image_path}")
-
-        # 파일이 실제로 존재하는지 확인
         if not os.path.exists(image_path):
             print(f"File does not exist at path: {image_path}")
             return jsonify({"error": "File not found"}), 404
@@ -324,8 +301,7 @@ def delete_image():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://172.21.198.179:5000/images"
-
+        base_url = "http://192.168.35.169:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         # 결과 반환
@@ -334,7 +310,6 @@ def delete_image():
             'image_count': image_count,
             'image_links': image_links
         })
-        #return ({"status": "success", "message": "Data received successfully"})
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -366,7 +341,7 @@ def delete_images():
             if not url:
                 return jsonify({'success': False, 'error': 'No image URLs provided'}), 400
 
-            image_path = url.replace("http://172.21.198.179:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
+            image_path = url.replace("http://192.168.35.169:5000/images", "C:/Image-Classification-Application-test/venv/venv/ClassifyResult")
             image_path = image_path.strip('"')
             image_path = os.path.normpath(image_path)
 
@@ -375,7 +350,6 @@ def delete_images():
                 print(f'Image deleted: {image_path}')
             else:
                 print(f'File does not exist at path: {image_path}')
-                #return jsonify({"error": "File not found"}), 404
             
         # 해당 폴더 내의 남아있는 이미지 개수 확인 (첫 이미지의 경로 기준)
         folder_path = os.path.dirname(image_path)
@@ -383,7 +357,7 @@ def delete_images():
         image_count = len(image_files)
         folder_name = os.path.basename(folder_path)
 
-        base_url = "http://172.21.198.179:5000/images"
+        base_url = "http://192.168.35.169:5000/images"
         image_links = [f"{base_url}/{folder_name}/{file}" for file in image_files]
 
         return jsonify({

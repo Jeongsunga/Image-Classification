@@ -121,13 +121,9 @@ public class LoadingScreen extends AppCompatActivity {
         File dcimFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), folderName);
 
         // 존재하는 폴더 반환
-        if (picturesFolder.exists()) {
-            return picturesFolder;
-        } else if (dcimFolder.exists()) {
-            return dcimFolder;
-        } else {
-            return null;
-        }
+        if (picturesFolder.exists()) return picturesFolder;
+        else if (dcimFolder.exists()) return dcimFolder;
+        else return null;
     }
 
     public void zipFolder(File folder, String zipFilePath) throws IOException {
@@ -180,7 +176,6 @@ public class LoadingScreen extends AppCompatActivity {
     }
 
     public void uploadFile(File file) {
-
         FileRequestBody fileRequestBody = new FileRequestBody(file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", file.getName(), fileRequestBody);
 
@@ -202,8 +197,6 @@ public class LoadingScreen extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // 네트워크 오류 또는 기타 에러 처리
-                //t.printStackTrace();
                 Toast.makeText(LoadingScreen.this, "네트워크 에러", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "에러 이유: " + t.getMessage());
                 finish();

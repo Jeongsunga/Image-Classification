@@ -23,7 +23,8 @@ def sortDate(innoDate, fileName, extractFolder):
 
     image_path = './' + extractFolder + '/'
     img_list = os.listdir(image_path)
-    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
+    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") 
+                    or img.endswith(".jpeg") or img.endswith(".JPEG") or img.endswith(".JPG") or img.endswith(".PNG")]
     #print(img_list_jpg)
     img_list_np = []
 
@@ -132,7 +133,8 @@ def sortDate2(innoDate, fileName, extractFolder):
 
     image_path = './ClassifyResult/' + extractFolder + "/"
     img_list = os.listdir(image_path)
-    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg")]
+    img_list_jpg = [img for img in img_list if img.endswith(".jpg") or img.endswith(".png") 
+                    or img.endswith(".jpeg") or img.endswith(".JPEG") or img.endswith(".JPG") or img.endswith(".PNG")]
     img_list_np = []
 
     j = 0

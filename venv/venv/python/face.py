@@ -7,6 +7,8 @@ from deepface import DeepFace
 from datetime import datetime
 # 얼굴
 
+
+
 # 스마트폰 갤러리에서 받을 때
 def detect_face(extractFolder):
     # Define paths

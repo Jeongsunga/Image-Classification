@@ -85,9 +85,8 @@ public class ImageAdapter extends BaseAdapter {
             public boolean onLongClick(View v) {
                 if (selectedItems.contains(position)) {
                     selectedItems.remove(Integer.valueOf(position));
-                } else {
-                    selectedItems.add(position);
-                }
+                } else selectedItems.add(position);
+
                 notifyDataSetChanged(); // UI 갱신
                 return true;
             }
@@ -105,11 +104,9 @@ public class ImageAdapter extends BaseAdapter {
 
     // 새로운 데이터로 업데이트하는 메서드
     public void updateData(List<String> newImageLinks) {
-        Log.d(TAG, "기존의 이미지 링크 리스트: " + imagePaths);
         this.imagePaths.clear();
         if (newImageLinks != null) {
             this.imagePaths.addAll(newImageLinks);
-            Log.d(TAG, "새로운 이미지 링크 리스트: " + imagePaths);
         }
         notifyDataSetChanged(); // 데이터 변경 알림
     }

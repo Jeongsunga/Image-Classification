@@ -135,13 +135,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if(item.getItemId() == R.id.delete) {
-                            showDeleteDialog(folderName);
-                        }else if(item.getItemId() == R.id.download) {
-                            showDownloadDialog();
-                        }else if(item.getItemId() == R.id.selectAll) {
-                            selectAllImages(folderName);
-                        }
+                        if(item.getItemId() == R.id.delete) showDeleteDialog(folderName);
+                        else if(item.getItemId() == R.id.download) showDownloadDialog();
+                        else if(item.getItemId() == R.id.selectAll) selectAllImages(folderName);
                         return true;
                     }
                 });
@@ -188,15 +184,10 @@ public class FirebaseStorage_images extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == DELETE_PHOTO_REQUEST_CODE) {
-            if (resultCode != Activity.RESULT_OK) {
-                //Toast.makeText(FirebaseStorage_images.this, "이전 액티비티에서 값을 받지 못했습니다.", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "사용자가 한장만 보이는 화면에서 아무런 동작 수행하지 않음.");
-                return;
-            }
+            if (resultCode != Activity.RESULT_OK) return;
 
             int imageCount = data.getIntExtra("imageCount", 0);
             ArrayList<String> imageLinks = data.getStringArrayListExtra("imageLinks");
-            Log.d(TAG, "사진장수: " + imageCount + " 이미지 링크 리스트: " + imageLinks);
 
             // 사진 장수 업데이트
             imagecount.setText(String.valueOf(imageCount));
@@ -207,7 +198,6 @@ public class FirebaseStorage_images extends AppCompatActivity {
             } else {
                 Toast.makeText(FirebaseStorage_images.this, "남은 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
             }
-
         }
     }
 
@@ -280,11 +270,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 public void onResponse(Call<DeleteResponse> call, Response<DeleteResponse> response) {
                     if(response.isSuccessful() && response.body() != null) {
                         DeleteResponse deleteResponse = response.body();
-                        Log.d(TAG, "응답 확인: " + deleteResponse);
                         boolean success = deleteResponse.isSuccess();
                         int imageCount = deleteResponse.getImageCount();
                         List<String> imageLinks = deleteResponse.getImageLinks(); // 삭제 후 서버에 남은 사진 링크 리스트
-                        Log.d(TAG, "성공여부: " + success + " 삭제 후 폴더 내의 사진 장수: " + imageCount + " 이미지 링크 리스트: " + imageLinks);
 
                         // 파이어베이스 삭제
                         ImageOne imageOne = new ImageOne();
@@ -295,8 +283,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
                             databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) Toast.makeText(FirebaseStorage_images.this, "삭제 성공", Toast.LENGTH_SHORT).show();
-                                    else Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                                    if(task.isSuccessful()) Toast.makeText(FirebaseStorage_images.this, "삭제 성공",
+                                            Toast.LENGTH_SHORT).show();
+                                    else Toast.makeText(FirebaseStorage_images.this, "DB 삭제 실패", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -314,7 +303,7 @@ public class FirebaseStorage_images extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<DeleteResponse> call, Throwable t) {
                     Toast.makeText(FirebaseStorage_images.this, "삭제 실패", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "삭제 실패: " + t.getMessage());
+                    Log.d(TAG, "서버 삭제 실행 실패: " + t.getMessage());
                 }
             });
         }else Toast.makeText(FirebaseStorage_images.this, "선택된 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
@@ -351,13 +340,9 @@ public class FirebaseStorage_images extends AppCompatActivity {
         Drawable currentDrawable = imageButton.getDrawable();
         Drawable expectedDrawable = ContextCompat.getDrawable(FirebaseStorage_images.this, R.drawable.heart);
 
-        if(currentDrawable.getConstantState().equals(expectedDrawable.getConstantState())) {
-            // 찜하기 버튼이 눌러져 있지 않은 상태일 때
-            allSelectedItems.addAll(imageUrls);
-        }else { // 찜하기 버튼이 눌러져 있을 때
-            allSelectedItems.addAll(favoriteImageUrls);
-        }
-        Log.d(TAG, "값 확인: " + allSelectedItems);
+        if(currentDrawable.getConstantState().equals(expectedDrawable.getConstantState())) allSelectedItems.addAll(imageUrls);
+        else allSelectedItems.addAll(favoriteImageUrls);
+
         new AlertDialog.Builder(FirebaseStorage_images.this)
                 .setMessage("삭제하시겠습니까, 저장하시겠습니까?")
                 .setPositiveButton("저장", new DialogInterface.OnClickListener() {

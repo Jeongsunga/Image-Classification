@@ -36,7 +36,7 @@ def detect_eyes(extractFolder):
 
     # 이미지 파일들을 순회하며 눈 상태 확인 및 이동
     for filename in os.listdir(source_folder):
-        if filename.endswith(('.jpg', '.jpeg', '.png')):
+        if filename.endswith(('.jpg', '.jpeg', '.png', '.JPEG', '.JPG', '.PNG')):
             file_path = os.path.join(source_folder, filename)
             img = cv2.imread(file_path)
 
@@ -120,7 +120,7 @@ def detect_eyes2(extractFolder):
 
     # 이미지 파일들을 순회하며 눈 상태 확인 및 이동
     for filename in os.listdir(source_folder):
-        if filename.endswith(('.jpg', '.jpeg', '.png')):
+        if filename.endswith(('.jpg', '.jpeg', '.png', '.JPEG', '.JPG', '.PNG')):
             file_path = os.path.join(source_folder, filename)
             img = cv2.imread(file_path)
 

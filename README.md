@@ -37,15 +37,23 @@
 1. Prerequisites:
     - Android Studio, JDK 17, Python 3.8.10
 
-2. **클론 및 빌드**:
+2. **클론 및 빌드**
     ```bash
-    git clone https://github.com/사용자명/프로젝트명.git
+    git clone https://github.com/Jeongsunga/Image-Classification
     ```
     - Android Studio에서 프로젝트 열기
-    - Gradle Sync 실행 후 빌드
-3. **APK 설치**:
+    
+3. **APK 설치**
     - 생성된 APK 파일을 기기에 설치하거나 에뮬레이터에서 실행합니다.
 
+4. **Flask 가상 환경 실행**
+   - 디렉토리로 이동
+   ```bash
+   cd Scrips
+   activate.bat
+   cd venv
+   python app.py
+   ```
 ---
 
 ## **사용 방법**

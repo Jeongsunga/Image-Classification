@@ -68,6 +68,7 @@
 ---
 
 ## 폴더 구조
+### app 주요 폴더 구조
 ```plaintext
 main/
 ├── java/
@@ -91,23 +92,26 @@ main/
 └──
 ```
 
+### flask 서버 폴더 구조
+```plaintext
 venv/
-┣ ClassifyResult/ # 분류 완료 결과 폴더
-┣ Extracted/ # 분류 완료 후 남은 이미지 폴더
-┣ Lib/ # 라이브러리 설치 폴더
-┣ python/ # 분류 코드 폴더
-┃ ┣ dataset/ # 눈 인식 학습 데이터셋
-┃ ┣ Resource/ # 얼굴 인식 학습 데이터셋
-┃ ┣ extractZip.py/ # 압축 파일 풀기 코드
-┃ ┣ eyes.py/ # 눈 인식 코드
-┃ ┣ face.py/ # 얼굴 인식 코드
-┃ ┣ location.py/ # 위치 분류 코드
-┃ ┣ meta_location.py/ # 사진의 메타데이터 추출 코드
-┃ ┣ period.py/ # 날짜 기간 분류 코드
-┃ ┗ pic_date.py/ # 날짜 하루 분류 코드
-┣ Scripts/ #flask 가상 환경 실행을 위한 폴더
-┣ uploads/ #압축 파일을 보관해놓는 폴더
-┗ app.py/ #flask 서버 실행 코드
+├── ClassifyResult/ # 분류 완료 결과 폴더
+├── Extracted/ # 분류 완료 후 남은 이미지 폴더
+├── Lib/ # 라이브러리 설치 폴더
+├── python/ # 분류 코드 폴더
+│ ├── dataset/ # 눈 인식 학습 데이터셋
+│ ├── Resource/ # 얼굴 인식 학습 데이터셋
+│ ├── extractZip.py/ # 압축 파일 풀기 코드
+│ ├── eyes.py/ # 눈 인식 코드
+│ ├── face.py/ # 얼굴 인식 코드
+│ ├── location.py/ # 위치 분류 코드
+│ ├── meta_location.py/ # 사진의 메타데이터 추출 코드
+│ ├── period.py/ # 날짜 기간 분류 코드
+│ └── pic_date.py/ # 날짜 하루 분류 코드
+├── Scripts/ #flask 가상 환경 실행을 위한 폴더
+├── uploads/ #압축 파일을 보관해놓는 폴더
+└── app.py/ #flask 서버 실행 코드
+```
 
 ---
 

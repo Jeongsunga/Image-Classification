@@ -63,14 +63,27 @@
 ---
 
 ## 시연 영상
-AutoClassify 시연 영상입니다.  아래 이미지를 클릭하면 유튜브로 이동합니다.
-[![AutoClassify 시연 영상](/resource/mainActivity.jpg)](https://www.youtube.com/watch?v=z0FtjE9dVl0)
+AutoClassify 시연 영상입니다. 
+
+### 눈 분류
+<img width="100%" alt="영상2" src="resource/video-2.gif">
+
+### 날짜 분류
+<img width="100%" alt="영상1" src="resource/video-1.gif">
+
+### 위치 분류
+<img width="100%" alt="영상3" src="resource/video-3.gif">
 
 ---
 
 ## 팀 구성
 - 정호정 : 위치/날짜 분류 코드 작성, 앱 개발 및 서버 구축, 데이터베이스 연동
 - 정승아 : 눈/얼굴 인식 분류 코드 작성, 앱 UI 디자인
+
+| 이름 |  | 역할 |  |
+|-----------------|-----------------|-----------------|-----------------|
+| 정호정   |  <img src="https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1638101071/noticon/gpr07ptl1x6evhew7li7.png" alt="정호정" width="100"> | <ul><li>위치/날짜 분류 코드 작성</li><li>앱 개발 및 서버 구축</li><li>데이터베이스 연동</li></ul>     |[GitHub](https://github.com/ristukaJJang) |
+| 정승아   |  <img src="https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1711609978/noticon/goy8tfeuevcdimme8vcl.png" alt="정승아" width="100">| <ul><li>눈/얼굴 인식 분류 코드 작성</li><li>앱 UI 디자인</li></ul> |[GitHub](https://github.com/Jeongsunga) |
 
 ---
 

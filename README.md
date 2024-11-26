@@ -71,6 +71,7 @@
 
 <details>
 <summary>App 폴더 구조</summary>
+```plaintext
 main/
 ┣ java/
 ┃ ┣ constants/ # 상수 선언
@@ -91,8 +92,9 @@ main/
 ┃ ┣ values/ # 색상 및 문자열 선언
 ┃ ┗ xml/ # 인터넷 접근 허용 설정
 ┗
+```
 </details>
-   
+
 <details>
 <summary>Venv 폴더 구조</summary>
 venv/

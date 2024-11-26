@@ -68,9 +68,6 @@
 ---
 
 ## 폴더 구조
-
-<details>
-<summary>App 폴더 구조</summary>
 ```plaintext
 main/
 ├── java/
@@ -93,7 +90,6 @@ main/
 │ └── xml/ # 인터넷 접근 허용 설정
 └──
 ```
-</details>
 
 <details>
 <summary>Venv 폴더 구조</summary>

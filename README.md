@@ -73,25 +73,25 @@
 <summary>App 폴더 구조</summary>
 ```plaintext
 main/
-┣ java/
-┃ ┣ constants/ # 상수 선언
-┃ ┣ model/ # 객체 선언
-┃ ┣ network/
-┃ ┃ ┣ interface/ # HTTP 통신 인터페이스
-┃ ┃ ┗ retrofit/ # Retrofit2 클래스
-┃ ┣ ui/
-┃ ┃ ┣ activity/ # 화면 액티비티
-┃ ┃ ┣ adapter/ # 어댑터
-┃ ┃ ┗ fragment/ # 프래그먼트
-┣ res/
-┃ ┣ anim/ # 요소 움직임 파일
-┃ ┣ drawable/ # 이미지 파일
-┃ ┣ function/ # 기능 파일
-┃ ┣ layout/ # 레이아웃 파일
-┃ ┣ menu/ # 팝업 메뉴 파일
-┃ ┣ values/ # 색상 및 문자열 선언
-┃ ┗ xml/ # 인터넷 접근 허용 설정
-┗
+├── java/
+│ ├── constants/ # 상수 선언
+│ ├── model/ # 객체 선언
+│ ├── network/
+│ │ ├── interface/ # HTTP 통신 인터페이스
+│ │ └── retrofit/ # Retrofit2 클래스
+│ ├── ui/
+│ │ ├── activity/ # 화면 액티비티
+│ │ ├── adapter/ # 어댑터
+│ │ └── fragment/ # 프래그먼트
+├── res/
+│ ├── anim/ # 요소 움직임 파일
+│ ├── drawable/ # 이미지 파일
+│ ├── function/ # 기능 파일
+│ ├── layout/ # 레이아웃 파일
+│ ├── menu/ # 팝업 메뉴 파일
+│ ├── values/ # 색상 및 문자열 선언
+│ └── xml/ # 인터넷 접근 허용 설정
+└──
 ```
 </details>
 

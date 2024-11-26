@@ -35,8 +35,8 @@
 
 ## **설치 방법**
 1. Prerequisites:
-    - 필요한 소프트웨어나 라이브러리 (예: Android Studio, JDK 버전 등).
-    - Android Studio, Python
+    - Android Studio, JDK 17, Python 3.8.10
+
 2. **클론 및 빌드**:
     ```bash
     git clone https://github.com/사용자명/프로젝트명.git

@@ -91,8 +91,6 @@ main/
 └──
 ```
 
-<details>
-<summary>Venv 폴더 구조</summary>
 venv/
 ┣ ClassifyResult/ # 분류 완료 결과 폴더
 ┣ Extracted/ # 분류 완료 후 남은 이미지 폴더
@@ -110,7 +108,6 @@ venv/
 ┣ Scripts/ #flask 가상 환경 실행을 위한 폴더
 ┣ uploads/ #압축 파일을 보관해놓는 폴더
 ┗ app.py/ #flask 서버 실행 코드
-</details>
 
 ---
 

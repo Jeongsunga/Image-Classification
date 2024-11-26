@@ -47,13 +47,24 @@
     - 생성된 APK 파일을 기기에 설치하거나 에뮬레이터에서 실행합니다.
 
 4. **Flask 가상 환경 실행**
-   - 디렉토리로 이동
    ```bash
    cd Scrips
    activate.bat
    cd venv
    python app.py
    ```
+
+5. **라이브러리 설치**:
+    ```bash
+    pip install deepface
+    pip install dlib
+    pip install PIL
+    pip install numpy
+    pip install dotenv
+   ```
+
+  - dlib 설치 오류시, 아래의 링크로 이동하여 수동 설치
+    [https://github.com/z-mahmud22/Dlib_Windows_Python3.x] 
 ---
 
 ## **사용 방법**

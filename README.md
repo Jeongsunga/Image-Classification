@@ -128,14 +128,15 @@ venv/
 AutoClassify 시연 영상입니다. 
 
 ### 눈 분류
-<img width="100%" alt="영상2" src="resource/video-2.gif">
+<img width="100%" alt="영상2" src="resource/eyes.gif">
 
 ### 날짜 분류
-<img width="100%" alt="영상1" src="resource/video-1.gif">
+<img width="100%" alt="영상1" src="resource/date.gif">
 
 ### 위치 분류
-[Youtube](https://youtu.be/w4UOx7SpvYk)
-<img width="100%" alt="영상3" src="resource/video-3.gif">
+<img width="100%" alt="영상3" src="resource/location.gif">
+
+### 저장 기능
 
 ---
 

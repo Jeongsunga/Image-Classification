@@ -134,6 +134,7 @@ AutoClassify 시연 영상입니다.
 <img width="100%" alt="영상1" src="resource/video-1.gif">
 
 ### 위치 분류
+[Youtube](https://youtu.be/w4UOx7SpvYk)
 <img width="100%" alt="영상3" src="resource/video-3.gif">
 
 ---

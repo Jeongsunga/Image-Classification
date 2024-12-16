@@ -137,6 +137,8 @@ AutoClassify 시연 영상입니다.
 <img width="100%" alt="영상3" src="resource/location.gif">
 
 ### 저장 기능
+영상 파일 용량 제한 문제로 유튜브에 업로드하였습니다.
+[Youtube](https://youtube.com/shorts/YYRJsVe5Ero?feature=share)
 
 ---
 
